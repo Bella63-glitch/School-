@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Schools in Kenya</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label, select, input, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .results, .payment-section {
+            margin-top: 20px;
+            display: none;
+        }
+        .result-item {
+            background: #f1f1f1;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .map {
+            margin-top: 20px;
+            height: 300px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Find Schools in Kenya</h1>
+        <label for="schoolType">Select School Type:</label>
+        <select id="schoolType">
+            <option value="preschool">Preschool</option>
+            <option value="primary">Primary</option>
+            <option value="secondary">Secondary</option>
+            <option value="university">University</option>
+        </select>
+
+        <label for="curriculum">Select Curriculum:</label>
+        <select id="curriculum">
+            <option value="cbc">CBC</option>
+            <option value="british">British</option>
+            <option value="ib">IB</option>
+        </select>
+
+        <label for="county">Select County:</label>
+        <select id="county">
+            <!-- Counties -->
+            <option value="">-- Select County --</option>
+            <option value="baringo">Baringo</option>
+            <option value="bomet">Bomet</option>
+            <option value="bungoma">Bungoma</option>
+            <option value="busia">Busia</option>
+            <option value="elgeyo-marakwet">Elgeyo-Marakwet</option>
+            <option value="nairobi">Nairobi</option>
+            <option value="kiambu">Kiambu</option>
+        </select>
+
+        <label for="subCounty">Select Sub-County:</label>
+        <select id="subCounty">
+            <option value="">-- Select Sub-County --</option>
+        </select>
+
+        <button onclick="initiateSearch()">Search Schools</button>
+
+        <!-- Payment Section -->
+        <div class="payment-section" id="paymentSection">
+            <h3>Payment Required</h3>
+            <p>To access search results, please pay <strong>KES 50</strong>.</p>
+            <button onclick="processPayment()">Pay Now</button>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results" id="results">
+            <h2>Search Results:</h2>
+            <div id="resultList"></div>
+        </div>
+
+        <!-- Map Section -->
+        <div id="map" class="map"></div>
+    </div>
+
+    <script>
+        let isPaid = false;
+
+        // Sub-county data
+        const subCounties = {
+            baringo: ["Eldama Ravine", "Tiaty", "Mogotio"],
+            bomet: ["Bomet Central", "Chepalungu", "Konoin"],
+            bungoma: ["Bumula", "Kabuchai", "Kimilili"],
+            busia: ["Teso North", "Teso South", "Matayos"],
+            "elgeyo-marakwet": ["Keiyo South", "Marakwet East", "Marakwet West"],
+            nairobi: ["Westlands", "Embakasi", "Kasarani"],
+            kiambu: ["Ruiru", "Thika", "Githunguri"]
+        };
+
+        // Dummy school data
+        const dummyData = [
+            {
+                name: "Nairobi International School",
+                type: "secondary",
+                curriculum: "british",
+                county: "nairobi",
+                subCounty: "Westlands"
+            },
+            {
+                name: "Kiambu Primary School",
+                type: "primary",
+                curriculum: "cbc",
+                county: "kiambu",
+                subCounty: "Thika"
+            },
+        ];
+
+        // Populate sub-counties dynamically
+        document.getElementById("county").addEventListener("change", function () {
+            const county = this.value;
+            const subCountySelect = document.getElementById("subCounty");
+            subCountySelect.innerHTML = '<option value="">-- Select Sub-County --</option>';
+
+            if (subCounties[county]) {
+                subCounties[county].forEach(subCounty => {
+                    const option = document.createElement("option");
+                    option.value = subCounty.toLowerCase();
+                    option.textContent = subCounty;
+                    subCountySelect.appendChild(option);
+                });
+            }
+        });
+
+        // Step 1: Initiate search
+        function initiateSearch() {
+            if (!isPaid) {
+                document.getElementById("paymentSection").style.display = "block";
+                return;
+            }
+            displayResults();
+        }
+
+        // Step 2: Simulate payment
+        function processPayment() {
+            alert("Payment successful!");
+            isPaid = true;
+            document.getElementById("paymentSection").style.display = "none";
+            displayResults();
+        }
+
+        // Step 3: Display search results
+        function displayResults() {
+            const county = document.getElementById("county").value.toLowerCase();
+            const subCounty = document.getElementById("subCounty").value.toLowerCase();
+            const type = document.getElementById("schoolType").value.toLowerCase();
+            const curriculum = document.getElementById("curriculum").value.toLowerCase();
+
+            const results = dummyData.filter(school =>
+                school.county === county &&
+                school.subCounty.toLowerCase() === subCounty &&
+                school.type === type &&
+                school.curriculum === curriculum
+            );
+
+            const resultList = document.getElementById("resultList");
+            resultList.innerHTML = results.map(school =>
+                `<div class="result-item">
+                    <strong>${school.name}</strong><br>
+                    Type: ${school.type.charAt(0).toUpperCase() + school.type.slice(1)}<br>
+                    Curriculum: ${school.curriculum.toUpperCase()}
+                </div>`
+            ).join("") || "<p>No schools found for the selected criteria.</p>";
+
+            document.getElementById("results").style.display = "block";
+        }
+    </script>
+</body>
+</html>
