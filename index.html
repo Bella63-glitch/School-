@@ -1,205 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find Schools in Kenya</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 10px;
-            background-color: #f9f9f9;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        label, select, input, button {
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .results, .payment-section {
-            margin-top: 20px;
-            display: none;
-        }
-        .result-item {
-            background: #f1f1f1;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-        }
-        .map {
-            margin-top: 20px;
-            height: 300px;
-            border: 1px solid #ccc;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Find Schools in Kenya</h1>
-        <label for="schoolType">Select School Type:</label>
-        <select id="schoolType">
-            <option value="preschool">Preschool</option>
-            <option value="primary">Primary</option>
-            <option value="secondary">Secondary</option>
-            <option value="university">University</option>
-        </select>
-
-        <label for="curriculum">Select Curriculum:</label>
-        <select id="curriculum">
-            <option value="cbc">CBC</option>
-            <option value="british">British</option>
-            <option value="ib">IB</option>
-        </select>
-
-        <label for="county">Select County:</label>
-        <select id="county">
-            <!-- Counties -->
-            <option value="">-- Select County --</option>
-            <option value="baringo">Baringo</option>
-            <option value="bomet">Bomet</option>
-            <option value="bungoma">Bungoma</option>
-            <option value="busia">Busia</option>
-            <option value="elgeyo-marakwet">Elgeyo-Marakwet</option>
-            <option value="nairobi">Nairobi</option>
-            <option value="kiambu">Kiambu</option>
-        </select>
-
-        <label for="subCounty">Select Sub-County:</label>
-        <select id="subCounty">
-            <option value="">-- Select Sub-County --</option>
-        </select>
-
-        <button onclick="initiateSearch()">Search Schools</button>
-
-        <!-- Payment Section -->
-        <div class="payment-section" id="paymentSection">
-            <h3>Payment Required</h3>
-            <p>To access search results, please pay <strong>KES 50</strong>.</p>
-            <button onclick="processPayment()">Pay Now</button>
-        </div>
-
-        <!-- Results Section -->
-        <div class="results" id="results">
-            <h2>Search Results:</h2>
-            <div id="resultList"></div>
-        </div>
-
-        <!-- Map Section -->
-        <div id="map" class="map"></div>
-    </div>
-
-    <script>
-        let isPaid = false;
-
-        // Sub-county data
-        const subCounties = {
-            baringo: ["Eldama Ravine", "Tiaty", "Mogotio"],
-            bomet: ["Bomet Central", "Chepalungu", "Konoin"],
-            bungoma: ["Bumula", "Kabuchai", "Kimilili"],
-            busia: ["Teso North", "Teso South", "Matayos"],
-            "elgeyo-marakwet": ["Keiyo South", "Marakwet East", "Marakwet West"],
-            nairobi: ["Westlands", "Embakasi", "Kasarani"],
-            kiambu: ["Ruiru", "Thika", "Githunguri"]
-        };
-
-        // Dummy school data
-        const dummyData = [
-            {
-                name: "Nairobi International School",
-                type: "secondary",
-                curriculum: "british",
-                county: "nairobi",
-                subCounty: "Westlands"
-            },
-            {
-                name: "Kiambu Primary School",
-                type: "primary",
-                curriculum: "cbc",
-                county: "kiambu",
-                subCounty: "Thika"
-            },
-        ];
-
-        // Populate sub-counties dynamically
-        document.getElementById("county").addEventListener("change", function () {
-            const county = this.value;
-            const subCountySelect = document.getElementById("subCounty");
-            subCountySelect.innerHTML = '<option value="">-- Select Sub-County --</option>';
-
-            if (subCounties[county]) {
-                subCounties[county].forEach(subCounty => {
-                    const option = document.createElement("option");
-                    option.value = subCounty.toLowerCase();
-                    option.textContent = subCounty;
-                    subCountySelect.appendChild(option);
-                });
-            }
-        });
-
-        // Step 1: Initiate search
-        function initiateSearch() {
-            if (!isPaid) {
-                document.getElementById("paymentSection").style.display = "block";
-                return;
-            }
-            displayResults();
-        }
-
-        // Step 2: Simulate payment
-        function processPayment() {
-            alert("Payment successful!");
-            isPaid = true;
-            document.getElementById("paymentSection").style.display = "none";
-            displayResults();
-        }
-
-        // Step 3: Display search results
-        function displayResults() {
-            const county = document.getElementById("county").value.toLowerCase();
-            const subCounty = document.getElementById("subCounty").value.toLowerCase();
-            const type = document.getElementById("schoolType").value.toLowerCase();
-            const curriculum = document.getElementById("curriculum").value.toLowerCase();
-
-            const results = dummyData.filter(school =>
-                school.county === county &&
-                school.subCounty.toLowerCase() === subCounty &&
-                school.type === type &&
-                school.curriculum === curriculum
-            );
-
-            const resultList = document.getElementById("resultList");
-            resultList.innerHTML = results.map(school =>
-                `<div class="result-item">
-                    <strong>${school.name}</strong><br>
-                    Type: ${school.type.charAt(0).toUpperCase() + school.type.slice(1)}<br>
-                    Curriculum: ${school.curriculum.toUpperCase()}
-                </div>`
-            ).join("") || "<p>No schools found for the selected criteria.</p>";
-
-            document.getElementById("results").style.display = "block";
-        }
-    </script>
-</body>
+<!doctype html>
+<html lang="en"> 
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>Find a School | Home</title> 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"> 
+ </head> 
+ <body class="bg-gray-50 text-gray-800"> <!-- Hero Section --> 
+  <section class="bg-blue-900 text-white py-20 px-6 text-center"> 
+   <h1 class="text-4xl font-bold mb-4">Find the Perfect School for Your Child</h1> 
+   <p class="text-lg mb-6">Search, compare, and connect with top-rated schools near you.</p> 
+   <div class="max-w-xl mx-auto mb-4"> 
+    <input type="text" placeholder="Search by name or location" class="w-full p-3 rounded-md text-gray-900"> 
+   </div> <a href="#submit" class="bg-yellow-400 text-black px-6 py-3 rounded-md font-semibold">Submit Your School</a> 
+  </section> <!-- Quick Filters --> 
+  <section class="py-10 px-6"> 
+   <h2 class="text-2xl font-semibold mb-4 text-center">Browse by Category</h2> 
+   <div class="flex flex-wrap justify-center gap-4"> <button class="bg-white px-4 py-2 shadow rounded">Preschool</button> <button class="bg-white px-4 py-2 shadow rounded">Primary</button> <button class="bg-white px-4 py-2 shadow rounded">Secondary</button> <button class="bg-white px-4 py-2 shadow rounded">University</button> <button class="bg-white px-4 py-2 shadow rounded">Boarding</button> <button class="bg-white px-4 py-2 shadow rounded">CBC</button> <button class="bg-white px-4 py-2 shadow rounded">British</button> <button class="bg-white px-4 py-2 shadow rounded">IB</button> 
+   </div> 
+  </section> <!-- Featured Schools --> 
+  <section class="py-10 px-6 bg-gray-100"> 
+   <h2 class="text-2xl font-semibold mb-6 text-center">Featured Schools</h2> 
+   <div class="grid md:grid-cols-3 gap-6"> 
+    <div class="bg-white p-4 rounded shadow"> 
+     <img src="https://via.placeholder.com/300x150" alt="School" class="rounded mb-3"> 
+     <h3 class="text-lg font-bold">Greenfield Academy</h3> 
+     <p class="text-sm">Nairobi, Kenya</p> 
+     <p class="text-yellow-500">★★★★☆</p> 
+    </div> 
+    <div class="bg-white p-4 rounded shadow"> 
+     <img src="https://via.placeholder.com/300x150" alt="School" class="rounded mb-3"> 
+     <h3 class="text-lg font-bold">Sunrise International</h3> 
+     <p class="text-sm">Mombasa, Kenya</p> 
+     <p class="text-yellow-500">★★★★★</p> 
+    </div> 
+    <div class="bg-white p-4 rounded shadow"> 
+     <img src="https://via.placeholder.com/300x150" alt="School" class="rounded mb-3"> 
+     <h3 class="text-lg font-bold">Royal Scholars School</h3> 
+     <p class="text-sm">Kisumu, Kenya</p> 
+     <p class="text-yellow-500">★★★☆☆</p> 
+    </div> 
+   </div> 
+  </section> <!-- Submit CTA --> 
+  <section id="submit" class="py-16 px-6 text-center bg-blue-100"> 
+   <h2 class="text-2xl font-semibold mb-4">Are You a School Owner?</h2> 
+   <p class="mb-6">Join our growing directory by submitting your school today.</p> <a href="/submit-school" class="bg-blue-700 text-white px-6 py-3 rounded-md font-semibold">Submit Your School</a> 
+  </section> <!-- Footer --> 
+  <footer class="bg-gray-800 text-white text-center py-6"> 
+   <p>© 2025 SchoolFinder. All rights reserved.</p> 
+   <div class="mt-2 space-x-4"> <a href="#" class="underline">About</a> <a href="#" class="underline">Contact</a> <a href="#" class="underline">Privacy Policy</a> 
+   </div> 
+  </footer> 
+ </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
