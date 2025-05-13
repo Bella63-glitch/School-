@@ -11,7 +11,7 @@
    <h1 class="text-4xl font-bold mb-4">Find the Perfect School for Your Child</h1> 
    <p class="text-lg mb-6">Search, compare, and connect with top-rated schools near you.</p> 
    <div class="max-w-xl mx-auto mb-4"> 
-    <input type="text" placeholder="Search by name or location" class="w-full p-3 rounded-md text-gray-900"> 
+    <input type="text" id="searchInput" placeholder="Search by name or location" class="w-full p-3 rounded-md text-gray-900"> 
    </div> <a href="#submit" class="bg-yellow-400 text-black px-6 py-3 rounded-md font-semibold">Submit Your School</a> 
   </section> <!-- Quick Filters --> 
   <section class="py-10 px-6"> 
@@ -21,25 +21,7 @@
   </section> <!-- Featured Schools --> 
   <section class="py-10 px-6 bg-gray-100"> 
    <h2 class="text-2xl font-semibold mb-6 text-center">Featured Schools</h2> 
-   <div class="grid md:grid-cols-3 gap-6"> 
-    <div class="bg-white p-4 rounded shadow"> 
-     <img src="https://via.placeholder.com/300x150" alt="School" class="rounded mb-3"> 
-     <h3 class="text-lg font-bold">Greenfield Academy</h3> 
-     <p class="text-sm">Nairobi, Kenya</p> 
-     <p class="text-yellow-500">★★★★☆</p> 
-    </div> 
-    <div class="bg-white p-4 rounded shadow"> 
-     <img src="https://via.placeholder.com/300x150" alt="School" class="rounded mb-3"> 
-     <h3 class="text-lg font-bold">Sunrise International</h3> 
-     <p class="text-sm">Mombasa, Kenya</p> 
-     <p class="text-yellow-500">★★★★★</p> 
-    </div> 
-    <div class="bg-white p-4 rounded shadow"> 
-     <img src="https://via.placeholder.com/300x150" alt="School" class="rounded mb-3"> 
-     <h3 class="text-lg font-bold">Royal Scholars School</h3> 
-     <p class="text-sm">Kisumu, Kenya</p> 
-     <p class="text-yellow-500">★★★☆☆</p> 
-    </div> 
+   <div id="schoolsContainer" class="grid md:grid-cols-3 gap-6"> <!-- JavaScript will inject school cards here --> 
    </div> 
   </section> <!-- Submit CTA --> 
   <section id="submit" class="py-16 px-6 text-center bg-blue-100"> 
@@ -51,8 +33,54 @@
    <div class="mt-2 space-x-4"> <a href="#" class="underline">About</a> <a href="#" class="underline">Contact</a> <a href="#" class="underline">Privacy Policy</a> 
    </div> 
   </footer> 
+  <script>
+    const APP_ID = "C38C2DCE-3230-45E0-BBA1-488F1EE82F24";
+    const API_KEY = "444C610E-2E95-483A-ABB9-D56D6F384E18";
+    const TABLE_NAME = "schools"; // Replace with exact name of your table
+
+    async function fetchSchools() {
+      try {
+        const res = await fetch(`https://api.backendless.com/${APP_ID}/${API_KEY}/data/${TABLE_NAME}`);
+        if (!res.ok) throw new Error("Failed to fetch schools");
+        const data = await res.json();
+
+        if (!Array.isArray(data)) throw new Error("Unexpected response format");
+
+        const container = document.getElementById("schoolsContainer");
+        container.innerHTML = "";
+
+        data.forEach(school => {
+          const card = document.createElement("div");
+          card.className = "bg-white p-4 rounded shadow";
+          card.innerHTML = `
+            <img src="${school.imageUrl || 'https://via.placeholder.com/300x150'}" alt="${school.name}" class="rounded mb-3">
+            <h3 class="text-lg font-bold">${school.name || 'Unnamed School'}</h3>
+            <p class="text-sm">${school.location || 'Unknown location'}</p>
+            <p class="text-yellow-500">${school.rating || '★★★☆☆'}</p>
+          `;
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Error loading schools:", err.message);
+        document.getElementById("schoolsContainer").innerHTML = `<p class="text-center text-red-500">Failed to load schools.</p>`;
+      }
+    }
+
+    fetchSchools();
+  </script> 
  </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
