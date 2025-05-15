@@ -9,7 +9,6 @@
  <body class="bg-gray-50 text-gray-800"> 
   <!-- Hero Section --> 
   <section class="bg-blue-900 text-white py-20 px-6 text-center relative" style="background-image: url('https://i.postimg.cc/J7GFWcR6/06fdac7f4348b818f0c5719c97264fb3.jpg'); background-size: cover; background-position: center;"> 
-   <!-- Overlay --> 
    <div class="absolute inset-0 bg-black opacity-50"></div> 
    <h1 class="text-4xl font-bold mb-4 relative z-10">Find the Perfect School for Your Child</h1> 
    <p class="text-lg mb-6 relative z-10">Search, compare, and connect with top-rated schools near you.</p> 
@@ -79,12 +78,13 @@
           const card = document.createElement("div");
           card.className = "bg-white p-4 rounded shadow";
           card.innerHTML = `
-            <img src="${school.imageUrl || 'https://via.placeholder.com/300x150'}" alt="${school.name}" class="rounded mb-3">
+            <img src="${school.imageUrl || 'https://via.placeholder.com/300x150'}" alt="${school.name}" class="rounded mb-3 w-full h-40 object-cover">
             <h3 class="text-lg font-bold">${school.name || 'Unnamed School'}</h3>
             <p class="text-sm">${school.location || 'Unknown location'}</p>
             <p class="text-yellow-500">${school.rating || '★★★☆☆'}</p>
           `;
-          container.append;
+          container.appendChild(card);
+        });
       } catch (err) {
         console.error("Error loading schools:", err.message);
         document.getElementById("schoolsContainer").innerHTML = `<p class="text-center text-red-500">Failed to load schools.</p>`;
@@ -95,3 +95,8 @@
   </script> 
  </body>
 </html>
+
+
+
+
+
