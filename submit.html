@@ -53,6 +53,8 @@
       <input type="text" name="curriculum" placeholder="Curriculum (e.g. CBC, British)" required>
       <textarea name="description" placeholder="School Description (optional)"></textarea>
       <input type="number" name="rating" placeholder="Rating (1–5)" min="1" max="5">
+      <input type="email" name="email" placeholder="School Email" required>
+      <input type="tel" name="phone" placeholder="School Phone Number" required>
       <label>Upload School Images (max 10):</label>
       <input type="file" name="images" multiple accept="image/*" required>
       <button type="submit" class="submit-btn">Submit School</button>
@@ -156,7 +158,7 @@
   async function uploadImage(file) {
     const form = new FormData();
     form.append("file", file);
-    const encodedFolderName = "school%20uploads"; // space encoded as %20
+    const encodedFolderName = "school%20uploads";
     const res = await fetch(`${BASE_URL}/files/${encodedFolderName}/${file.name}`, {
       method: "POST",
       body: form,
@@ -178,6 +180,8 @@
       curriculum: form.curriculum.value, 
       description: form.description.value, 
       rating: parseInt(form.rating.value), 
+      email: form.email.value,
+      phone: form.phone.value,
       images 
     };
     await fetch(`${BASE_URL}/data/schools`, {
@@ -185,7 +189,7 @@
       headers: { "Content-Type": "application/json", "user-token": token }, 
       body: JSON.stringify(school)
     });
-    alert("🎉 School submitted successfully!");
+    alert("School submitted successfully!");
     form.reset();
     const user = await getCurrentUser();
     loadSchools(user.objectId);
@@ -209,6 +213,8 @@
         <small>${school.location}</small><br>
         <p><strong>Curriculum:</strong> ${school.curriculum}</p>
         <p>${school.description || ''}</p>
+        <p><strong>Email:</strong> ${school.email}</p>
+        <p><strong>Phone:</strong> ${school.phone}</p>
         <p><strong>Rating:</strong> ${school.rating || 'N/A'}</p>
       `;
       list.appendChild(div);
@@ -223,4 +229,7 @@
 </body>
 </html>
 
-    
+
+
+
+
