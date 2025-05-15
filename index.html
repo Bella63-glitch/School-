@@ -76,7 +76,7 @@
 
         data.forEach(school => {
           const card = document.createElement("a");
-          card.href = `schoold.html?id=${school.objectId}`;
+          card.href = `school.html?id=${school.objectId}`;
           card.className = "bg-white p-4 rounded shadow block hover:shadow-lg transition";
           card.innerHTML = `
             <img src="${school.imageUrl || 'https://via.placeholder.com/300x150'}" alt="${school.name}" class="rounded mb-3 w-full h-40 object-cover">
@@ -96,21 +96,3 @@
   </script> 
  </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
