@@ -15,7 +15,7 @@
    <div class="max-w-xl mx-auto mb-4 relative z-10"> 
     <input type="text" id="searchInput" placeholder="Search by name or location" class="w-full p-3 rounded-md text-gray-900"> 
    </div> 
-   <a href="#submit" class="bg-yellow-400 text-black px-6 py-3 rounded-md font-semibold relative z-10">Submit Your School</a> 
+   <a href="#schoolsContainer" class="bg-yellow-400 text-black px-6 py-3 rounded-md font-semibold relative z-10">Search</a> 
   </section> 
 
   <!-- Quick Filters --> 
@@ -75,8 +75,9 @@
         container.innerHTML = "";
 
         data.forEach(school => {
-          const card = document.createElement("div");
-          card.className = "bg-white p-4 rounded shadow";
+          const card = document.createElement("a");
+          card.href = `schoold.html?id=${school.objectId}`;
+          card.className = "bg-white p-4 rounded shadow block hover:shadow-lg transition";
           card.innerHTML = `
             <img src="${school.imageUrl || 'https://via.placeholder.com/300x150'}" alt="${school.name}" class="rounded mb-3 w-full h-40 object-cover">
             <h3 class="text-lg font-bold">${school.name || 'Unnamed School'}</h3>
@@ -95,6 +96,19 @@
   </script> 
  </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
