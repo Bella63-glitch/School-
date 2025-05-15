@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div class="container mx-auto px-4 py-10">
+    <div id="schoolDetails" class="bg-white rounded shadow p-6">
+      <p>Loading school details...</p>
+    </div>
+  </div>
+
+  <script>
+    const APP_ID = "C38C2DCE-3230-45E0-BBA1-488F1EE82F24";
+    const API_KEY = "444C610E-2E95-483A-ABB9-D56D6F384E18";
+    const BASE_URL = `https://api.backendless.com/${APP_ID}/${API_KEY}`;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const schoolId = urlParams.get("id");
+
+    async function loadSchoolDetails() {
+      const container = document.getElementById("schoolDetails");
+
+      if (!schoolId) {
+        container.innerHTML = `<p class="text-red-500">No school ID provided in URL.</p>`;
+        return;
+      }
+
+      try {
+        const res = await fetch(`${BASE_URL}/data/schools/${schoolId}`);
+        if (!res.ok) throw new Error("Failed to fetch school");
+        const school = await res.json();
+
+        // Create images HTML
+        let imagesHtml = '';
+        if (Array.isArray(school.images)) {
+          imagesHtml = school.images.map(url => 
+            `<img src="${url}" class="w-full md:w-1/2 mb-4 rounded shadow" alt="School Image" />`
+          ).join('');
+        } else if (school.imageUrl) {
+          imagesHtml = `<img src="${school.imageUrl}" class="w-full mb-4 rounded shadow" alt="School Image" />`;
+        }
+
+        container.innerHTML = `
+          <h2 class="text-2xl font-bold mb-4">${school.name || 'Unnamed School'}</h2>
+          ${imagesHtml}
+          <p><strong>Location:</strong> ${school.location || 'Not specified'}</p>
+          <p><strong>Curriculum:</strong> ${school.curriculum || 'N/A'}</p>
+          <p><strong>Email:</strong> <a href="mailto:${school.email}" class="text-blue-600 underline">${school.email || 'N/A'}</a></p>
+          <p><strong>Phone:</strong> <a href="tel:${school.phone}" class="text-blue-600 underline">${school.phone || 'N/A'}</a></p>
+          <p class="mt-4"><strong>Description:</strong> ${school.description || 'No description provided.'}</p>
+        `;
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<p class="text-red-500">Failed to load school details.</p>`;
+      }
+    }
+
+    loadSchoolDetails();
+  </script>
+
+</body></html>
