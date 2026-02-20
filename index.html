@@ -3,96 +3,183 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <title>Find a School | Home</title> 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"> 
+  <title>SchoolScout | Find the Best School</title> 
+  <script src="https://api.backendless.com/sdk/js/latest/backendless.min.js"></script> 
+  <script src="https://cdn.tailwindcss.com"></script> 
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"> 
+  <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+        .glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(14px); }
+        #botToggleBtn { z-index: 9999 !important; }
+        #chatPanel { z-index: 10000 !important; }
+        .school-card { transition: all 0.3s ease; cursor: pointer; }
+        .school-card:hover { transform: translateY(-8px); shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+        details summary::-webkit-details-marker { display: none; }
+    </style> 
  </head> 
- <body class="bg-gray-50 text-gray-800"> 
-  <!-- Hero Section --> 
-  <section class="bg-blue-900 text-white py-20 px-6 text-center relative" style="background-image: url('https://i.postimg.cc/J7GFWcR6/06fdac7f4348b818f0c5719c97264fb3.jpg'); background-size: cover; background-position: center;"> 
-   <div class="absolute inset-0 bg-black opacity-50"></div> 
-   <h1 class="text-4xl font-bold mb-4 relative z-10">Find the Perfect School for Your Child</h1> 
-   <p class="text-lg mb-6 relative z-10">Search, compare, and connect with top-rated schools near you.</p> 
-   <div class="max-w-xl mx-auto mb-4 relative z-10"> 
-    <input type="text" id="searchInput" placeholder="Search by name or location" class="w-full p-3 rounded-md text-gray-900"> 
+ <body class="bg-[#fcfdfe] text-slate-900"> 
+  <nav class="glass-nav sticky top-0 z-50 border-b border-slate-100"> 
+   <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center"> 
+    <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.reload()"> 
+     <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-blue-200">
+       S 
+     </div> <span class="text-xl font-extrabold tracking-tight uppercase">SchoolScout</span> 
+    </div> 
+    <div id="compareBadge" class="hidden bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-xs font-bold border border-blue-100 animate-pulse"> <span id="selectedCount">0</span> Selected 
+    </div> 
    </div> 
-   <a href="#schoolsContainer" class="bg-yellow-400 text-black px-6 py-3 rounded-md font-semibold relative z-10">Search</a> 
-  </section> 
-
-  <!-- Quick Filters --> 
-  <section class="py-10 px-6"> 
-   <h2 class="text-2xl font-semibold mb-4 text-center">Browse by Category</h2> 
-   <div class="flex flex-wrap justify-center gap-4"> 
-    <button class="bg-white px-4 py-2 shadow rounded">Preschool</button> 
-    <button class="bg-white px-4 py-2 shadow rounded">Primary</button> 
-    <button class="bg-white px-4 py-2 shadow rounded">Secondary</button> 
-    <button class="bg-white px-4 py-2 shadow rounded">University</button> 
-    <button class="bg-white px-4 py-2 shadow rounded">Boarding</button> 
-    <button class="bg-white px-4 py-2 shadow rounded">CBC</button> 
-    <button class="bg-white px-4 py-2 shadow rounded">British</button> 
-    <button class="bg-white px-4 py-2 shadow rounded">IB</button> 
+  </nav> 
+  <header class="max-w-7xl mx-auto px-6 py-12 lg:py-20 grid lg:grid-cols-2 gap-12 items-center"> 
+   <div> 
+    <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
+      ✨ 2026 Admissions Open 
+    </div> 
+    <h1 class="text-5xl lg:text-7xl font-extrabold leading-[1.1] mb-6 tracking-tight text-slate-900">Find the right <br><span class="text-blue-600">School</span> for them.</h1> 
+    <p class="text-slate-500 text-lg mb-10 max-w-lg leading-relaxed">Browse verified schools in Kenya. Compare fees, see campus photos, and filter by location instantly.</p> 
+    <div class="flex flex-wrap gap-4"> <a href="#explore" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-blue-200 hover:scale-105 transition transform text-center">View All Schools</a> <button onclick="toggleChat()" class="bg-white border border-slate-200 px-10 py-4 rounded-2xl font-bold hover:bg-slate-50 transition">Talk to Scout</button> 
+    </div> 
+   </div> 
+   <div class="hidden lg:block"> 
+    <div class="h-[500px] rounded-[3rem] overflow-hidden border-[8px] border-white shadow-2xl"> 
+     <img id="heroBanner" src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&amp;fit=crop&amp;w=1000" class="w-full h-full object-cover"> 
+    </div> 
+   </div> 
+  </header> 
+  <main id="explore" class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-100"> 
+   <h2 class="text-3xl font-extrabold tracking-tight mb-10" id="gridTitle">Explore Verified Schools</h2> 
+   <div id="schoolGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div> 
+  </main> 
+  <section class="max-w-4xl mx-auto px-6 py-20"> 
+   <h2 class="text-3xl font-extrabold text-center mb-12">Frequently Asked Questions</h2> 
+   <div class="space-y-4"> 
+    <details class="group bg-white border border-slate-100 rounded-3xl p-6 shadow-sm"> <summary class="flex justify-between items-center font-bold cursor-pointer list-none"> How do I know the school fees are accurate? <span class="text-blue-600 transition group-open:rotate-180">▼</span> </summary> 
+     <p class="mt-4 text-slate-500 text-sm leading-relaxed">Our team manually verifies fee structures for the 2026 academic year directly with school administrations before marking a school as "Verified."</p> 
+    </details> 
+    <details class="group bg-white border border-slate-100 rounded-3xl p-6 shadow-sm"> <summary class="flex justify-between items-center font-bold cursor-pointer list-none"> Can I book a school tour through SchoolScout? <span class="text-blue-600 transition group-open:rotate-180">▼</span> </summary> 
+     <p class="mt-4 text-slate-500 text-sm leading-relaxed">Yes! You can use the "Call Now" button in the school details page to speak directly with the admissions office and schedule a visit.</p> 
+    </details> 
+    <details class="group bg-white border border-slate-100 rounded-3xl p-6 shadow-sm"> <summary class="flex justify-between items-center font-bold cursor-pointer list-none"> What does the "Verified" badge mean? <span class="text-blue-600 transition group-open:rotate-180">▼</span> </summary> 
+     <p class="mt-4 text-slate-500 text-sm leading-relaxed">The badge confirms that the school exists, the photos are recent, and the curriculum details have been cross-checked by our admin team.</p> 
+    </details> 
    </div> 
   </section> 
-
-  <!-- Featured Schools --> 
-  <section class="py-10 px-6 bg-gray-100"> 
-   <h2 class="text-2xl font-semibold mb-6 text-center">Featured Schools</h2> 
-   <div id="schoolsContainer" class="grid md:grid-cols-3 gap-6"> 
-    <!-- JavaScript will inject school cards here --> 
+  <div id="detailView" class="fixed inset-0 z-[2000] bg-white hidden overflow-y-auto"> 
+   <div class="max-w-6xl mx-auto px-6 py-12"> <button onclick="closeDetails()" class="mb-8 flex items-center gap-2 text-slate-500 font-bold hover:text-blue-600 transition"> <span class="text-2xl">←</span> Back to Search </button> 
+    <div id="detailContent" class="grid lg:grid-cols-3 gap-12"></div> 
    </div> 
-  </section> 
-
-  <!-- Submit CTA --> 
-  <section id="submit" class="py-16 px-6 text-center bg-blue-100"> 
-   <h2 class="text-2xl font-semibold mb-4">Are You a School Owner?</h2> 
-   <p class="mb-6">Join our growing directory by submitting your school today.</p> 
-   <a href="submit.html" class="bg-blue-700 text-white px-6 py-3 rounded-md font-semibold">Submit Your School</a> 
-  </section> 
-
-  <!-- Footer --> 
-  <footer class="bg-gray-800 text-white text-center py-6"> 
-   <p>© 2025 SchoolFinder. All rights reserved.</p> 
-   <div class="mt-2 space-x-4"> 
-    <a href="#" class="underline">About</a> 
-    <a href="#" class="underline">Contact</a> 
-    <a href="#" class="underline">Privacy Policy</a> 
+  </div> <button id="botToggleBtn" onclick="toggleChat()" class="fixed bottom-8 right-8 w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition active:scale-95 text-2xl border-2 border-white">💬</button> 
+  <div id="chatPanel" class="fixed bottom-0 right-0 w-full sm:w-[400px] sm:bottom-24 sm:right-8 bg-white sm:rounded-[2rem] shadow-2xl flex flex-col h-[550px] translate-y-[120%] transition-transform duration-500 border border-slate-100 overflow-hidden"> 
+   <div class="p-5 bg-slate-900 text-white flex justify-between items-center"> <span class="font-bold text-sm tracking-wide uppercase">AI School Scout</span> <button onclick="toggleChat()">✕</button> 
    </div> 
-  </footer> 
-
+   <div id="chatMessages" class="flex-1 p-5 overflow-y-auto bg-slate-50 space-y-4"></div> 
+   <div class="p-4 bg-white border-t flex gap-2"> 
+    <input id="chatInput" type="text" onkeypress="if(event.key==='Enter') sendChat()" placeholder="Type a location..." class="flex-1 bg-slate-100 px-4 py-3 rounded-xl outline-none text-sm focus:ring-1 focus:ring-blue-500"> <button onclick="sendChat()" class="bg-blue-600 text-white px-5 rounded-xl font-bold text-sm">Find</button> 
+   </div> 
+  </div> 
   <script>
-    const APP_ID = "C38C2DCE-3230-45E0-BBA1-488F1EE82F24";
-    const API_KEY = "444C610E-2E95-483A-ABB9-D56D6F384E18";
-    const TABLE_NAME = "schools";
+        const APP_ID = "7C583CBA-2EDA-488B-8593-0ED33DD5C3D3";
+        const API_KEY = "2E3D73DF-6DE9-4F76-9DB1-D240978DEE1D";
+        Backendless.initApp(APP_ID, API_KEY);
 
-    async function fetchSchools() {
-      try {
-        const res = await fetch(`https://api.backendless.com/${APP_ID}/${API_KEY}/data/${TABLE_NAME}`);
-        if (!res.ok) throw new Error("Failed to fetch schools");
-        const data = await res.json();
+        let allSchools = [];
 
-        if (!Array.isArray(data)) throw new Error("Unexpected response format");
+        async function loadSchools() {
+            try {
+                // VERIFICATION CHECK: Only load where isverified is true
+                const query = Backendless.DataQueryBuilder.create()
+                    .setWhereClause("isverified = true")
+                    .setPageSize(100);
+                
+                allSchools = await Backendless.Data.of("Schools").find(query);
+                renderSchools(allSchools);
+            } catch (e) { console.error(e); }
+        }
 
-        const container = document.getElementById("schoolsContainer");
-        container.innerHTML = "";
+        function renderSchools(data) {
+            const grid = document.getElementById("schoolGrid");
+            grid.innerHTML = data.map(s => {
+                const img = (s.gallery && s.gallery.length > 0) ? s.gallery[0] : s.heroImage;
+                return `
+                <div class="school-card bg-white rounded-[2.5rem] p-4 border border-slate-100 flex flex-col h-full shadow-sm hover:shadow-lg" onclick="showDetails('${s.objectId}')">
+                    <div class="h-60 bg-slate-50 rounded-[2rem] overflow-hidden mb-5">
+                        <img src="${getImageUrl(img)}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="px-2 flex-1 flex flex-col">
+                        <h3 class="text-xl font-bold mb-1 tracking-tight text-slate-800">${s.name}</h3>
+                        <p class="text-slate-400 text-xs mb-5 italic">📍 ${s.location || 'Kenya'}</p>
+                        <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
+                            <span class="text-lg font-black text-blue-600">KES ${Number(s.annualfee || 0).toLocaleString()}</span>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">View Details →</p>
+                        </div>
+                    </div>
+                </div>`;
+            }).join("");
+        }
 
-        data.forEach(school => {
-          const card = document.createElement("a");
-          card.href = `school.html?id=${school.objectId}`;
-          card.className = "bg-white p-4 rounded shadow block hover:shadow-lg transition";
-          card.innerHTML = `
-            <img src="${school.imageUrl || 'https://via.placeholder.com/300x150'}" alt="${school.name}" class="rounded mb-3 w-full h-40 object-cover">
-            <h3 class="text-lg font-bold">${school.name || 'Unnamed School'}</h3>
-            <p class="text-sm">${school.location || 'Unknown location'}</p>
-            <p class="text-yellow-500">${school.rating || '★★★☆☆'}</p>
-          `;
-          container.appendChild(card);
-        });
-      } catch (err) {
-        console.error("Error loading schools:", err.message);
-        document.getElementById("schoolsContainer").innerHTML = `<p class="text-center text-red-500">Failed to load schools.</p>`;
-      }
-    }
+        function getImageUrl(fileName, thumb = true) {
+            if (!fileName) return 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=800';
+            return `https://backendlessappcontent.com/${APP_ID}/${API_KEY}/files/school_images/${fileName}${thumb ? "?default-thumbnail=true&width=600" : ""}`;
+        }
 
-    fetchSchools();
-  </script> 
+        function showDetails(id) {
+            const s = allSchools.find(sc => sc.objectId === id);
+            const content = document.getElementById("detailContent");
+            const galleryHtml = (s.gallery || []).map(img => `<img src="${getImageUrl(img, false)}" class="w-full rounded-2xl shadow-sm object-cover">`).join('');
+            const amenities = (s.amenities || []).map(a => `<span class="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold">${a}</span>`).join('');
+
+            content.innerHTML = `
+                <div class="lg:col-span-2 space-y-10">
+                    <div>
+                        <h2 class="text-5xl font-black text-slate-900">${s.name}</h2>
+                        <p class="text-xl text-slate-400 font-medium italic mt-2">📍 ${s.location} — ${s.exactaddress || ''}</p>
+                    </div>
+                    <div class="space-y-6">
+                        <h4 class="text-xs font-black uppercase text-slate-300 tracking-widest">Campus Gallery</h4>
+                        <div class="gallery-grid">${galleryHtml}</div>
+                    </div>
+                    <div class="space-y-6">
+                        <h4 class="text-xs font-black uppercase text-slate-300 tracking-widest">About the School</h4>
+                        <p class="text-slate-600 leading-relaxed text-lg">${s.description || 'Verified educational institution.'}</p>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="sticky top-28 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-100/50">
+                        <div class="mb-8 font-black">
+                            <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-2">Annual Fees (2026)</p>
+                            <p class="text-4xl text-blue-600">KES ${Number(s.annualfee || 0).toLocaleString()}</p>
+                        </div>
+                        <div class="mb-8">
+                            <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Features</p>
+                            <div class="flex flex-wrap gap-2">${amenities}</div>
+                        </div>
+                        <a href="tel:${s.phone}" class="flex items-center justify-center gap-3 w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-blue-600 transition">📞 Call Admissions</a>
+                    </div>
+                </div>`;
+            document.getElementById("detailView").classList.remove("hidden");
+            window.scrollTo(0, 0);
+        }
+
+        function closeDetails() { document.getElementById("detailView").classList.add("hidden"); }
+        function toggleChat() { 
+            const p = document.getElementById("chatPanel");
+            p.classList.toggle("translate-y-[120%]");
+            p.classList.toggle("translate-y-0");
+        }
+
+        async function sendChat() {
+            const input = document.getElementById("chatInput");
+            const val = input.value.trim().toLowerCase();
+            if(!val) return;
+            input.value = "";
+            const query = Backendless.DataQueryBuilder.create()
+                .setWhereClause(`isverified = true AND (location LIKE '%${val}%' OR name LIKE '%${val}%')`);
+            const res = await Backendless.Data.of("Schools").find(query);
+            renderSchools(res);
+            document.getElementById("gridTitle").innerText = `Results for "${val}"`;
+        }
+
+        loadSchools();
+    </script> 
  </body>
 </html>
