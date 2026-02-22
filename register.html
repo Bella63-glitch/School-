@@ -3,215 +3,336 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <title>SchoolScout | Admin Portal</title> 
+  <title>SchoolScout | Portal</title> 
   <script src="https://api.backendless.com/sdk/js/latest/backendless.min.js"></script> 
   <script src="https://cdn.tailwindcss.com"></script> 
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"> 
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"> 
   <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .glass-card { background: white; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+        .input-group:focus-within label { color: #2563eb; }
+        .sidebar-item-active { background: #eff6ff; color: #1e40af; border-right: 4px solid #2563eb; }
+        .sidebar-item { transition: all 0.2s; }
+        textarea::-webkit-scrollbar { width: 6px; }
+        textarea::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style> 
  </head> 
- <body class="bg-[#f1f5f9] text-slate-900 min-h-screen"> 
+ <body class="bg-[#f8fafc] text-slate-900 min-h-screen"> 
   <div id="authOverlay" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4"> 
-   <div class="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl"> 
-    <h1 id="authTitle" class="text-3xl font-black mb-2 text-blue-600 italic">SchoolScout</h1> 
-    <p class="text-slate-400 text-sm mb-8 font-medium">Institutional Management Portal</p> 
+   <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl border border-white/20"> 
+    <div class="text-center mb-8"> 
+     <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4 shadow-lg shadow-blue-200">
+      S
+     </div> 
+     <h1 id="authTitle" class="text-3xl font-extrabold tracking-tight">SchoolScout Portal</h1> 
+     <p class="text-slate-500 text-sm mt-1">Connect. Manage. Grow.</p> 
+    </div> 
     <form id="authForm" class="space-y-4"> 
-     <input type="email" id="email" placeholder="Email Address" class="w-full bg-slate-50 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all" required> 
-     <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-50 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all" required> 
-     <div id="regFields" class="hidden space-y-4"> 
-      <input type="text" id="adminName" placeholder="Administrator Name" class="w-full bg-slate-50 rounded-2xl px-5 py-4 text-sm outline-none"> <select id="userRole" onchange="toggleSchoolDetails()" class="w-full bg-slate-50 rounded-2xl px-5 py-4 text-sm outline-none"> <option value="parent">I am a Parent</option> <option value="school" selected>I represent a School</option> </select> 
-      <div id="schoolInfo" class="p-5 bg-blue-50 rounded-2xl border border-blue-100 space-y-3"> 
-       <input type="text" id="sName" placeholder="School Name (e.g. Sunset Academy)" class="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none"> 
-       <input type="text" id="sLoc" placeholder="City/Town (e.g. Nairobi)" class="w-full bg-white rounded-xl px-4 py-3 text-sm outline-none"> 
+     <input type="email" id="email" placeholder="Email Address" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all" required> 
+     <input type="password" id="pass" placeholder="Password" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all" required> 
+     <div id="regFields" class="hidden space-y-4 pt-4 border-t border-slate-100"> 
+      <input type="text" id="adminName" placeholder="Full Name" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 text-sm outline-none"> 
+      <div class="flex gap-4 justify-center py-2"> 
+        <label class="flex items-center gap-2 cursor-pointer group"> 
+          <input type="radio" name="userRole" value="parent" checked onclick="toggleRoleFields('parent')" class="w-4 h-4 text-blue-600"> 
+          <span class="text-sm font-bold text-slate-600 group-hover:text-blue-600">Parent</span> 
+        </label> 
+        <label class="flex items-center gap-2 cursor-pointer group"> 
+          <input type="radio" name="userRole" value="school" onclick="toggleRoleFields('school')" class="w-4 h-4 text-blue-600"> 
+          <span class="text-sm font-bold text-slate-600 group-hover:text-blue-600">School Admin</span> 
+        </label> 
       </div> 
-     </div> <button type="submit" id="mainBtn" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 active:scale-95 transition">Sign In</button> 
-    </form> <button onclick="toggleMode()" id="modeBtn" class="w-full mt-6 text-blue-600 font-bold text-sm underline underline-offset-4">Create New Account</button> 
+      <div id="schoolInfoSection" class="hidden p-5 bg-blue-50/50 rounded-2xl border border-blue-100 space-y-4"> 
+       <input type="text" id="sName" placeholder="School Name" class="w-full bg-white rounded-xl px-4 py-3 text-sm border border-slate-200"> 
+       <input type="text" id="sLoc" placeholder="City (e.g. Nairobi)" class="w-full bg-white rounded-xl px-4 py-3 text-sm border border-slate-200"> 
+      </div> 
+     </div> 
+     <button type="submit" id="mainBtn" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition-all">Sign In</button> 
+    </form> 
+    <button onclick="toggleMode()" id="modeBtn" class="w-full mt-6 text-blue-600 font-bold text-sm hover:underline">Create New Account</button> 
    </div> 
   </div> 
-  <div id="dashboard" class="hidden animate-in fade-in duration-500"> 
-   <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-50"> <span class="font-black text-2xl italic text-blue-600">SchoolScout</span> 
-    <div class="flex items-center gap-4"> <span id="userDisplay" class="text-xs font-bold text-slate-400"></span> <button onclick="logout()" class="text-xs font-bold text-red-500 bg-red-50 px-4 py-2 rounded-xl hover:bg-red-100 transition">Logout</button> 
-    </div> 
-   </nav> 
-   <main class="max-w-6xl mx-auto px-6 py-12"> 
-    <div id="schoolContent" class="hidden space-y-10"> 
-     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"> 
-      <h2 class="text-4xl font-black tracking-tight" id="dashSchoolName">School Manager</h2> <span class="bg-green-100 text-green-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">Verified Institution</span> 
+
+  <div id="dashboard" class="hidden flex min-h-screen"> 
+   <aside class="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col fixed h-full"> 
+    <div class="p-8 text-2xl font-black text-blue-600 italic">SchoolScout</div> 
+    <nav class="flex-1 px-4 space-y-2"> 
+     <div id="navOverview" onclick="switchTab('overview')" class="sidebar-item sidebar-item-active p-4 rounded-xl text-sm font-bold cursor-pointer">
+      Overview
      </div> 
-     <div class="grid lg:grid-cols-2 gap-8"> 
-      <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6"> 
-       <h3 class="font-bold text-xl text-blue-600">School Profile</h3> 
-       <div class="space-y-4"> 
-        <div> <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Exact Physical Address</label> 
-         <input type="text" id="dashAddr" placeholder="Street, Plot No., Nearby Landmark" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-blue-400"> 
-        </div> 
-        <div class="grid grid-cols-2 gap-4"> 
-         <div> <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Annual Fee (KES)</label> 
-          <input type="number" id="dashFee" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm outline-none"> 
-         </div> 
-         <div> <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Phone Contact</label> 
-          <input type="text" id="dashPhone" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm outline-none"> 
-         </div> 
-        </div> 
-        <div> <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Curriculum</label> 
-         <input type="text" id="dashCurr" placeholder="e.g. CBC, British, IB" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm outline-none"> 
-        </div> 
-        <div> <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">About the School</label> <textarea id="dashDesc" rows="4" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm outline-none" placeholder="Describe your school's history and values..."></textarea> 
-        </div> 
-        <div class="space-y-3"> <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Key Amenities</label> 
-         <div id="amenitiesList" class="flex flex-wrap gap-2"> <label class="bg-slate-50 px-4 py-2 rounded-xl text-xs font-bold flex items-center cursor-pointer hover:bg-blue-50"> <input type="checkbox" value="Swimming Pool" class="amenity-check mr-2"> Swimming Pool </label> <label class="bg-slate-50 px-4 py-2 rounded-xl text-xs font-bold flex items-center cursor-pointer hover:bg-blue-50"> <input type="checkbox" value="Science Lab" class="amenity-check mr-2"> Science Lab </label> <label class="bg-slate-50 px-4 py-2 rounded-xl text-xs font-bold flex items-center cursor-pointer hover:bg-blue-50"> <input type="checkbox" value="Music Room" class="amenity-check mr-2"> Music Room </label> <label class="bg-slate-50 px-4 py-2 rounded-xl text-xs font-bold flex items-center cursor-pointer hover:bg-blue-50"> <input type="checkbox" value="Transport" class="amenity-check mr-2"> Transport </label> 
-         </div> 
-        </div> <button onclick="updateFullProfile()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition">Save All Profile Changes</button> 
-       </div> 
-      </div> 
-      <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col h-full"> 
-       <h3 class="font-bold text-xl text-blue-600 mb-2">Campus Gallery</h3> 
-       <p class="text-xs text-slate-400 mb-8 font-medium italic">Photos show parents your campus environment.</p> 
-       <div class="border-2 border-dashed border-slate-100 rounded-[2rem] p-8 text-center bg-slate-50/50 mb-8"> 
-        <input type="file" id="fileInput" multiple accept="image/*" class="hidden" onchange="updateFileLabel()"> <button onclick="document.getElementById('fileInput').click()" class="bg-white border border-slate-200 px-8 py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 transition">Select Multiple Photos</button> 
-        <p id="fileLabel" class="text-[10px] mt-4 font-bold text-slate-400 uppercase">No files selected</p> 
-       </div> <button onclick="uploadGallery()" id="uploadBtn" class="hidden w-full bg-slate-900 text-white py-4 rounded-2xl font-black mb-8">Upload to Server</button> 
-       <div id="galleryPreview" class="grid grid-cols-3 gap-3 overflow-y-auto max-h-[400px] p-2"> 
-       </div> 
+     <div id="navSettings" onclick="switchTab('settings')" class="sidebar-item p-4 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-50 cursor-pointer">
+      School Settings
+     </div> 
+    </nav> 
+    <div class="p-8 border-t border-slate-100"> 
+      <button onclick="logout()" class="text-sm font-bold text-red-500 flex items-center gap-2 hover:opacity-70 transition"> 
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewbox="0 0 24 24" stroke="currentColor">
+          <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg> Sign Out 
+      </button> 
+    </div> 
+   </aside> 
+
+   <div class="flex-1 md:ml-64"> 
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-100 px-8 py-4 flex justify-end items-center sticky top-0 z-50"> 
+     <div class="flex items-center gap-3"> 
+       <span id="roleBadge" class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter">User</span> 
+       <span id="userDisplay" class="text-xs font-black text-slate-400"></span> 
+     </div> 
+    </nav> 
+
+    <main class="p-10 max-w-6xl mx-auto"> 
+     <div id="parentContent" class="hidden space-y-8"> 
+      <h2 class="text-4xl font-black tracking-tight">Hello, <span id="parentNameDisplay" class="text-blue-600">Parent</span></h2> 
+      <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm max-w-md"> 
+       <h3 class="font-bold text-xl mb-2">Saved Schools</h3> 
+       <p class="text-slate-400 text-sm">You haven't saved any schools yet.</p> 
       </div> 
      </div> 
-    </div> 
-   </main> 
+
+     <div id="schoolContent" class="hidden space-y-8"> 
+      <div class="flex justify-between items-end"> 
+       <div> 
+        <h2 class="text-4xl font-black tracking-tight" id="dashSchoolName">School Manager</h2> 
+        <p class="text-slate-400 font-medium" id="dashLocationLabel"></p> 
+       </div> 
+       <div class="bg-green-100 text-green-700 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest"> Institutional Account </div> 
+      </div> 
+
+      <div class="grid lg:grid-cols-3 gap-8"> 
+       <div class="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm space-y-6"> 
+        <h3 class="font-bold text-xl text-blue-600">Edit School Profile</h3> 
+        <div class="grid md:grid-cols-2 gap-4"> 
+         <div class="input-group"> 
+           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mb-1">Official School Name</label> 
+           <input type="text" id="dashNameUpdate" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm border border-transparent focus:border-blue-200 outline-none"> 
+         </div>
+         <div class="input-group"> 
+           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mb-1">City/Location</label> 
+           <input type="text" id="dashLocUpdate" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm border border-transparent focus:border-blue-200 outline-none"> 
+         </div> 
+         <div class="input-group md:col-span-2"> 
+           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mb-1">Exact Address</label> 
+           <input type="text" id="dashAddress" placeholder="e.g. Ngong Road, Opposite Junction Mall" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm border border-transparent focus:border-blue-200 outline-none"> 
+         </div> 
+         <div class="input-group"> 
+           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mb-1">Annual Fee (KES)</label> 
+           <input type="number" id="dashFee" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm border border-transparent focus:border-blue-200 outline-none"> 
+         </div> 
+         <div class="input-group"> 
+           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mb-1">Contact Phone</label> 
+           <input type="text" id="dashPhone" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm border border-transparent focus:border-blue-200 outline-none"> 
+         </div> 
+         <div class="input-group"> 
+           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mb-1">Curriculum</label> 
+           <select id="dashCurriculum" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm border border-transparent focus:border-blue-200 outline-none"> 
+             <option value="CBC">CBC</option> 
+             <option value="8-4-4">8-4-4</option> 
+             <option value="British">British (IGCSE)</option> 
+             <option value="International">International</option> 
+           </select> 
+         </div> 
+         <div class="input-group"> 
+           <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mb-1">Amenities</label> 
+           <input type="text" id="dashAmenities" placeholder="Swimming, Transport, Gym..." class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm border border-transparent focus:border-blue-200 outline-none"> 
+         </div> 
+        </div> 
+        <div class="input-group"> 
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2 block mb-1">Description</label> 
+          <textarea id="dashDesc" rows="4" class="w-full bg-slate-50 rounded-xl px-4 py-3 text-sm outline-none border border-transparent focus:border-blue-200" placeholder="Tell parents about your school..."></textarea> 
+        </div> 
+        <button onclick="updateFullProfile()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition">Save All Changes</button> 
+       </div> 
+
+       <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col"> 
+        <h3 class="font-bold text-xl text-blue-600 mb-6">Gallery</h3> 
+        <div class="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 rounded-[2rem] p-8 text-center bg-slate-50/50 mb-6 cursor-pointer" onclick="document.getElementById('fileInput').click()"> 
+         <input type="file" id="fileInput" multiple accept="image/*" class="hidden" onchange="updateFileLabel()"> 
+         <p id="fileLabel" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select Photos</p> 
+        </div> 
+        <button onclick="uploadGallery()" id="uploadBtn" class="hidden w-full bg-slate-900 text-white py-4 rounded-2xl font-black mb-6">Upload to Gallery</button> 
+        <div id="galleryPreview" class="grid grid-cols-2 gap-3 max-h-60 overflow-y-auto pr-1"></div> 
+       </div> 
+      </div> 
+     </div> 
+    </main> 
+   </div> 
   </div> 
+
   <script>
-        const APP_ID = "7C583CBA-2EDA-488B-8593-0ED33DD5C3D3";
-        const API_KEY = "2E3D73DF-6DE9-4F76-9DB1-D240978DEE1D";
-        Backendless.initApp(APP_ID, API_KEY);
+    const APP_ID = "7C583CBA-2EDA-488B-8593-0ED33DD5C3D3";
+    const API_KEY = "2E3D73DF-6DE9-4F76-9DB1-D240978DEE1D";
+    Backendless.initApp(APP_ID, API_KEY);
 
-        let isLogin = true;
-        let currentUser = null;
+    let isLogin = true;
+    let currentUser = null;
 
-        function toggleMode() {
-            isLogin = !isLogin;
-            document.getElementById('authTitle').innerText = isLogin ? 'SchoolScout' : 'Register';
-            document.getElementById('regFields').classList.toggle('hidden');
-            document.getElementById('mainBtn').innerText = isLogin ? 'Sign In' : 'Create Account';
-            document.getElementById('modeBtn').innerText = isLogin ? 'Create New Account' : 'Back to Login';
-        }
+    function toggleMode() {
+        isLogin = !isLogin;
+        document.getElementById('authTitle').innerText = isLogin ? 'SchoolScout Portal' : 'New Account';
+        document.getElementById('regFields').classList.toggle('hidden');
+        document.getElementById('mainBtn').innerText = isLogin ? 'Sign In' : 'Create Account';
+        document.getElementById('modeBtn').innerText = isLogin ? 'Create New Account' : 'Back to Login';
+    }
 
-        function toggleSchoolDetails() {
-            const role = document.getElementById('userRole').value;
-            document.getElementById('schoolInfo').classList.toggle('hidden', role !== 'school');
-        }
+    function toggleRoleFields(role) {
+        document.getElementById('schoolInfoSection').classList.toggle('hidden', role !== 'school');
+    }
 
-        function updateFileLabel() {
-            const count = document.getElementById('fileInput').files.length;
-            document.getElementById('fileLabel').innerText = `${count} photos ready`;
-            document.getElementById('uploadBtn').classList.remove('hidden');
-        }
-
-        // --- AUTH LOGIC ---
-        document.getElementById('authForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
-
-            try {
-                if (isLogin) {
-                    // Force clear old sessions
-                    try { await Backendless.UserService.logout(); } catch(e){}
-                    currentUser = await Backendless.UserService.login(email, pass, true);
-                    initDashboard();
-                } else {
-                    const user = new Backendless.User();
-                    user.email = email; user.password = pass;
-                    user.userRole = document.getElementById('userRole').value;
-                    user.name = document.getElementById('adminName').value;
-
-                    if (user.userRole === 'school') {
-                        const school = await Backendless.Data.of("Schools").save({
-                            name: document.getElementById('sName').value,
-                            location: document.getElementById('sLoc').value
-                        });
-                        user.managedSchoolId = school.objectId;
-                    }
-                    await Backendless.UserService.register(user);
-                    alert("Registration Successful! Now Sign In.");
-                    toggleMode();
-                }
-            } catch (err) { alert(err.message); }
+    function switchTab(tab) {
+        const navItems = {
+            overview: document.getElementById('navOverview'),
+            settings: document.getElementById('navSettings')
+        };
+        Object.values(navItems).forEach(item => {
+            item.classList.remove('sidebar-item-active');
+            item.classList.add('text-slate-400');
         });
+        navItems[tab].classList.add('sidebar-item-active');
+        navItems[tab].classList.remove('text-slate-400');
 
-        // --- DASHBOARD LOGIC ---
-        async function initDashboard() {
-            document.getElementById('authOverlay').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
-            document.getElementById('userDisplay').innerText = currentUser.email;
+        if(tab === 'settings') {
+            document.getElementById('dashNameUpdate').focus();
+            document.getElementById('dashNameUpdate').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
 
-            if (currentUser.userRole === 'school') {
-                document.getElementById('schoolContent').classList.remove('hidden');
-                
-                // Fetch School Data
-                const school = await Backendless.Data.of("Schools").findById(currentUser.managedSchoolId);
-                document.getElementById('dashSchoolName').innerText = school.name;
-                document.getElementById('dashFee').value = school.annualfee || "";
-                document.getElementById('dashCurr').value = school.curriculum || "";
-                document.getElementById('dashAddr').value = school.exactaddress || "";
-                document.getElementById('dashPhone').value = school.phone || "";
-                document.getElementById('dashDesc').value = school.description || "";
-                
-                // Map Amenities
-                if(school.amenities) {
-                    document.querySelectorAll('.amenity-check').forEach(cb => {
-                        if(school.amenities.includes(cb.value)) cb.checked = true;
+    function updateFileLabel() {
+        const count = document.getElementById('fileInput').files.length;
+        document.getElementById('fileLabel').innerText = `${count} photos selected`;
+        document.getElementById('uploadBtn').classList.remove('hidden');
+    }
+
+    document.getElementById('authForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('pass').value;
+
+        try {
+            if (isLogin) {
+                currentUser = await Backendless.UserService.login(email, pass, true);
+                initDashboard();
+            } else {
+                const user = new Backendless.User();
+                user.email = email; 
+                user.password = pass;
+                user.name = document.getElementById('adminName').value;
+                const role = document.querySelector('input[name="userRole"]:checked').value;
+                user.userRole = role;
+
+                if (role === 'school') {
+                    const school = await Backendless.Data.of("Schools").save({
+                        name: document.getElementById('sName').value,
+                        location: document.getElementById('sLoc').value,
+                        isverified: false
                     });
+                    user.managedSchoolId = school.objectId;
                 }
-                
-                renderGallery(school.gallery);
+                await Backendless.UserService.register(user);
+                alert("Account Created! You can now sign in.");
+                toggleMode();
             }
-        }
+        } catch (err) { alert(err.message); }
+    });
 
-        async function updateFullProfile() {
-            const selectedAmenities = Array.from(document.querySelectorAll('.amenity-check:checked'))
-                                           .map(cb => cb.value);
-            try {
-                await Backendless.Data.of("Schools").save({
-                    objectId: currentUser.managedSchoolId,
-                    annualfee: parseInt(document.getElementById('dashFee').value),
-                    curriculum: document.getElementById('dashCurr').value,
-                    exactaddress: document.getElementById('dashAddr').value,
-                    phone: document.getElementById('dashPhone').value,
-                    description: document.getElementById('dashDesc').value,
-                    amenities: selectedAmenities
-                });
-                alert("Profile Details Saved!");
-            } catch (e) { alert("Save Error: Check if you enabled 'Update' permissions for Authenticated Users in the console."); }
-        }
+    async function initDashboard() {
+        document.getElementById('authOverlay').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('userDisplay').innerText = currentUser.email;
+        document.getElementById('roleBadge').innerText = currentUser.userRole;
 
-        async function uploadGallery() {
-            const files = document.getElementById('fileInput').files;
-            let names = [];
-            try {
-                for (let f of files) {
-                    const res = await Backendless.Files.upload(f, "school_images", true);
-                    names.push(res.fileURL.split('/').pop());
-                }
-                await Backendless.Data.of("Schools").save({
-                    objectId: currentUser.managedSchoolId,
-                    gallery: names
-                });
-                alert("Gallery Saved!");
-                location.reload();
-            } catch (e) { alert("Upload Failed: " + e.message); }
+        if (currentUser.userRole === 'school' && currentUser.managedSchoolId) {
+            document.getElementById('schoolContent').classList.remove('hidden');
+            document.getElementById('parentContent').classList.add('hidden');
+            
+            const school = await Backendless.Data.of("Schools").findById(currentUser.managedSchoolId);
+            
+            document.getElementById('dashSchoolName').innerText = school.name;
+            document.getElementById('dashLocationLabel').innerText = school.location;
+            
+            document.getElementById('dashNameUpdate').value = school.name || "";
+            document.getElementById('dashLocUpdate').value = school.location || "";
+            document.getElementById('dashAddress').value = school.address || "";
+            document.getElementById('dashFee').value = school.annualfee || "";
+            document.getElementById('dashDesc').value = school.description || "";
+            document.getElementById('dashPhone').value = school.phone || "";
+            document.getElementById('dashCurriculum').value = school.curriculum || "CBC";
+            document.getElementById('dashAmenities').value = school.amenities || "";
+            
+            renderGallery(school.gallery);
+        } else {
+            document.getElementById('parentContent').classList.remove('hidden');
+            document.getElementById('schoolContent').classList.add('hidden');
+            document.getElementById('parentNameDisplay').innerText = currentUser.name || "Parent";
         }
+    }
 
-        function renderGallery(gallery) {
-            if (!gallery) return;
-            document.getElementById('galleryPreview').innerHTML = gallery.map(img => `
-                <div class="aspect-square bg-slate-100 rounded-2xl overflow-hidden shadow-inner">
-                    <img src="https://backendlessappcontent.com/${APP_ID}/${API_KEY}/files/school_images/${img}" class="w-full h-full object-cover">
-                </div>
-            `).join('');
+    async function updateFullProfile() {
+        try {
+            const updatedSchool = await Backendless.Data.of("Schools").save({
+                objectId: currentUser.managedSchoolId,
+                name: document.getElementById('dashNameUpdate').value,
+                annualfee: parseInt(document.getElementById('dashFee').value),
+                description: document.getElementById('dashDesc').value,
+                phone: document.getElementById('dashPhone').value,
+                curriculum: document.getElementById('dashCurriculum').value,
+                location: document.getElementById('dashLocUpdate').value,
+                address: document.getElementById('dashAddress').value,
+                amenities: document.getElementById('dashAmenities').value
+            });
+            document.getElementById('dashSchoolName').innerText = updatedSchool.name;
+            document.getElementById('dashLocationLabel').innerText = updatedSchool.location;
+            alert("Profile successfully updated!");
+        } catch (e) { alert("Error updating: " + e.message); }
+    }
+
+    async function uploadGallery() {
+        const files = document.getElementById('fileInput').files;
+        if (files.length === 0) return;
+        let names = [];
+        const btn = document.getElementById('uploadBtn');
+        btn.innerText = "Uploading...";
+        btn.disabled = true;
+        try {
+            for (let f of files) {
+                const res = await Backendless.Files.upload(f, "school_images", true);
+                names.push(res.fileURL.split('/').pop());
+            }
+            const school = await Backendless.Data.of("Schools").findById(currentUser.managedSchoolId);
+            const currentGallery = school.gallery || [];
+            await Backendless.Data.of("Schools").save({
+                objectId: currentUser.managedSchoolId,
+                gallery: [...currentGallery, ...names]
+            });
+            alert("Gallery Updated!");
+            location.reload();
+        } catch (e) { 
+            alert(e.message); 
+            btn.innerText = "Upload to Gallery";
+            btn.disabled = false;
         }
+    }
 
-        function logout() { Backendless.UserService.logout(); location.reload(); }
-    </script> 
+    function renderGallery(gallery) {
+        if (!gallery || gallery.length === 0) return;
+        document.getElementById('galleryPreview').innerHTML = gallery.map(img => `
+            <div class="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 shadow-inner">
+                <img src="https://backendlessappcontent.com/${APP_ID}/${API_KEY}/files/school_images/${img}" class="w-full h-full object-cover">
+            </div>
+        `).join('');
+    }
+
+    function logout() { Backendless.UserService.logout().finally(() => { location.reload(); }); }
+  </script> 
  </body>
 </html>
+    
+
+
+
+
+
+
+
+
+
