@@ -15,19 +15,23 @@
         .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .btn-whatsapp { background-color: #25D366; color: white; }
-        .gallery-img { width: 100%; height: 100%; object-fit: cover; border-radius: 2rem; }
+        .gallery-img { width: 100%; height: 100%; object-fit: cover; border-radius: 2rem; transition: transform 0.3s ease; }
+        .gallery-img:hover { transform: scale(1.02); }
+        .star-rating { color: #fbbf24; }
     </style> 
  </head> 
  <body class="text-slate-900"> 
   <nav class="bg-white/90 backdrop-blur-md border-b border-slate-100 px-8 py-5 flex justify-between items-center sticky top-0 z-50"> 
-   <div class="text-2xl font-black text-blue-600 italic tracking-tighter cursor-pointer" onclick="window.history.back()">SchoolScout</div> 
+   <div class="text-2xl font-black text-blue-600 italic tracking-tighter cursor-pointer" onclick="window.location.href='index.html'">SchoolScout</div> 
    <div class="flex gap-3"> 
     <a id="navCall" href="#" class="bg-slate-900 text-white px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2">Call</a> 
     <a id="navWhatsapp" href="#" target="_blank" class="btn-whatsapp px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2">WhatsApp</a> 
    </div> 
   </nav> 
 
-  <main id="loadingState" class="max-w-6xl mx-auto p-12 text-center font-bold text-slate-400">Loading School Data...</main>
+  <main id="loadingState" class="max-w-6xl mx-auto p-12 text-center font-bold text-slate-400">
+    <div class="animate-pulse">Loading Institutional Profile...</div>
+  </main>
 
   <main id="mainContent" class="max-w-6xl mx-auto p-6 md:p-12 space-y-12 hidden"> 
    <section class="grid lg:grid-cols-2 gap-12 items-start"> 
@@ -39,8 +43,11 @@
      </p> 
      <div class="grid grid-cols-2 gap-4 py-6 border-y border-slate-100"> 
       <div> 
-       <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Average Rating</p> 
-       <div class="flex items-center gap-2"><span id="avgRating" class="text-3xl font-black text-slate-900"></span><span class="text-amber-400 text-xl">★★★★★</span></div> 
+       <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Performance Score</p> 
+       <div class="flex items-center gap-2">
+         <span id="avgRating" class="text-3xl font-black text-slate-900"></span>
+         <span class="star-rating text-xl">★★★★★</span>
+       </div> 
       </div> 
       <div> 
        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Annual Tuition</p> 
@@ -48,60 +55,79 @@
       </div> 
      </div> 
      <div class="grid grid-cols-2 gap-4 pt-4"> 
-        <a id="mainCall" href="#" class="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-[2rem] hover:bg-slate-50 transition">
+        <a id="mainCall" href="#" class="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-[2rem] hover:shadow-lg transition">
             <span class="text-sm font-black uppercase">Call Office</span>
         </a>
-        <a id="mainWhatsapp" href="#" class="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-[2rem] hover:bg-slate-50 transition">
-            <span class="text-sm font-black uppercase">Chat Now</span>
+        <a id="mainWhatsapp" href="#" class="flex flex-col items-center justify-center p-6 bg-white border border-slate-100 rounded-[2rem] hover:shadow-lg transition">
+            <span class="text-sm font-black uppercase">WhatsApp</span>
         </a>
      </div> 
     </div> 
-    <div id="mainGallery" class="grid grid-cols-2 gap-4 h-[500px]"></div> 
+    <div id="mainGallery" class="grid grid-cols-2 gap-4 h-[400px]"></div> 
    </section> 
 
    <section class="grid lg:grid-cols-3 gap-12"> 
     <div class="lg:col-span-2 space-y-12"> 
-     <div class="bg-white p-12 rounded-[3.5rem] shadow-sm border border-slate-100"> 
+     <div class="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-100"> 
       <h3 class="text-2xl font-black mb-8">Institutional Overview</h3> 
       <div class="grid grid-cols-2 md:grid-cols-3 gap-8 pb-10 border-b border-slate-50"> 
-       <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Level</p><p id="level" class="font-bold text-lg"></p></div> 
-       <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Religion</p><p id="religion" class="font-bold text-lg"></p></div> 
-       <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Curriculum</p><p id="curriculum" class="font-bold text-lg"></p></div> 
+       <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Level</p><p id="level" class="font-bold text-lg text-slate-700"></p></div> 
+       <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Religion</p><p id="religion" class="font-bold text-lg text-slate-700"></p></div> 
+       <div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Curriculum</p><p id="curriculum" class="font-bold text-lg text-slate-700"></p></div> 
       </div> 
       <div class="pt-10"> 
-       <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Amenities</p> 
+       <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Featured Amenities</p> 
        <div id="amenityList" class="flex flex-wrap gap-2"></div> 
       </div> 
      </div> 
-     <div id="schoolMap"></div> 
+     
+     <div>
+       <h3 class="text-2xl font-black mb-6 flex items-center gap-2">📍 Location Map</h3>
+       <div id="schoolMap"></div> 
+     </div>
     </div> 
-    <div class="bg-white p-8 rounded-[3rem] border border-slate-100"> 
-      <h4 class="font-black text-xl mb-6">Parent Ratings</h4> 
-      <div id="reviewList" class="space-y-6 max-h-[600px] overflow-y-auto custom-scroll pr-2"></div> 
-    </div> 
+
+    <div class="space-y-6">
+      <div class="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm"> 
+        <h4 class="font-black text-xl mb-6">Parent Reviews</h4> 
+        <div id="reviewList" class="space-y-6 max-h-[400px] overflow-y-auto custom-scroll pr-2 mb-6">
+          <p class="text-slate-400 text-sm">No reviews yet. Be the first to share your experience!</p>
+        </div> 
+        
+        <div class="pt-6 border-t border-slate-50">
+          <p class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Add your review</p>
+          <input id="revName" type="text" placeholder="Your Name" class="w-full mb-2 p-3 bg-slate-50 rounded-xl text-sm outline-none focus:ring-1 ring-blue-200">
+          <textarea id="revComment" placeholder="Share your experience..." class="w-full h-24 p-3 bg-slate-50 rounded-xl text-sm outline-none focus:ring-1 ring-blue-200 resize-none"></textarea>
+          <button onclick="submitReview()" class="w-full mt-2 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-blue-700 transition">Post Review</button>
+        </div>
+      </div> 
+    </div>
    </section> 
   </main>
 
   <script>
-    // 1. INITIALIZE BACKENDLESS (ENTER YOUR REAL KEYS HERE)
-    Backendless.initApp('YOUR_APP_ID', 'YOUR_JS_API_KEY');
+    const APP_ID = '7C583CBA-2EDA-488B-8593-0ED33DD5C3D3';
+    const API_KEY = '2E3D73DF-6DE9-4F76-9DB1-D240978DEE1D';
+    Backendless.initApp(APP_ID, API_KEY);
+
+    let currentSchoolId = "";
 
     async function fetchSchoolDetails() {
-        // Get 'id' from URL parameters (?id=XXXX-XXXX-XXXX)
         const urlParams = new URLSearchParams(window.location.search);
-        const schoolId = urlParams.get('id');
+        currentSchoolId = urlParams.get('id');
 
-        if (!schoolId) {
-            document.getElementById('loadingState').innerText = "No school ID found in URL.";
+        if (!currentSchoolId) {
+            document.getElementById('loadingState').innerHTML = "Invalid School ID.";
             return;
         }
 
         try {
-            const school = await Backendless.Data.of("Schools").findById(schoolId);
+            const school = await Backendless.Data.of("Schools").findById(currentSchoolId);
             renderPage(school);
+            fetchReviews();
         } catch (error) {
-            console.error("Error fetching school:", error);
-            document.getElementById('loadingState').innerText = "School not found.";
+            console.error(error);
+            document.getElementById('loadingState').innerText = "School Profile not found.";
         }
     }
 
@@ -109,49 +135,100 @@
         document.getElementById('loadingState').classList.add('hidden');
         document.getElementById('mainContent').classList.remove('hidden');
 
-        // Text Content
-        document.getElementById('catBadge').innerText = data.category || 'School';
+        document.getElementById('catBadge').innerText = data.category || 'General';
         document.getElementById('schoolName').innerText = data.name;
         document.getElementById('locText').innerText = data.location;
-        document.getElementById('avgRating').innerText = data.avgRating || '0.0';
-        document.getElementById('feeLabel').innerText = `KES ${(data.fee || 0).toLocaleString()}`;
+        document.getElementById('avgRating').innerText = data.performanceScore || '0.0';
+        document.getElementById('feeLabel').innerText = `KES ${(data.annualfee || 0).toLocaleString()}`;
         document.getElementById('level').innerText = data.level || 'N/A';
         document.getElementById('religion').innerText = data.religion || 'N/A';
         document.getElementById('curriculum').innerText = data.curriculum || 'N/A';
 
-        // Contact Links
-        const phone = data.phone || '';
-        const wa = data.whatsapp || '';
-        document.getElementById('navCall').href = `tel:${phone}`;
-        document.getElementById('mainCall').href = `tel:${phone}`;
-        document.getElementById('navWhatsapp').href = `https://wa.me/${wa}`;
-        document.getElementById('mainWhatsapp').href = `https://wa.me/${wa}`;
+        // Contacts
+        const p = data.phone || '0700000000';
+        const w = data.whatsapp || '254700000000';
+        document.getElementById('navCall').href = `tel:${p}`;
+        document.getElementById('mainCall').href = `tel:${p}`;
+        document.getElementById('navWhatsapp').href = `https://wa.me/${w}`;
+        document.getElementById('mainWhatsapp').href = `https://wa.me/${w}`;
 
-        // Amenities (Handles array or comma-string)
+        // Amenities
         const amenities = Array.isArray(data.amenities) ? data.amenities : (data.amenities?.split(',') || []);
         const aList = document.getElementById('amenityList');
+        aList.innerHTML = "";
         amenities.forEach(a => {
             const span = document.createElement('span');
-            span.className = "px-4 py-2 bg-slate-50 text-slate-600 rounded-full text-[11px] font-bold border border-slate-100 uppercase";
+            span.className = "px-4 py-2 bg-slate-50 text-slate-500 rounded-full text-[11px] font-bold border border-slate-100 uppercase";
             span.innerText = a.trim();
             aList.appendChild(span);
         });
 
-        // Gallery
-        const images = data.images || [];
+        // Gallery Logic
         const gallery = document.getElementById('mainGallery');
-        images.slice(0, 2).forEach(url => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.className = 'gallery-img shadow-lg';
-            gallery.appendChild(img);
-        });
+        gallery.innerHTML = "";
+        let imgs = [];
+        try { imgs = typeof data.gallery === 'string' ? JSON.parse(data.gallery) : data.gallery; } catch(e) { imgs = [data.gallery]; }
 
-        // Map
-        if (data.lat && data.lng) {
-            const map = L.map('schoolMap', { scrollWheelZoom: false }).setView([data.lat, data.lng], 15);
+        if (imgs && imgs.length > 0) {
+            const arr = Array.isArray(imgs) ? imgs : [imgs];
+            arr.slice(0, 2).forEach(f => {
+                const img = document.createElement('img');
+                img.src = `https://backendlessappcontent.com/${APP_ID}/${API_KEY}/files/school_images/${f}`;
+                img.className = 'gallery-img shadow-md';
+                gallery.appendChild(img);
+            });
+        }
+
+        // Map Logic
+        if (data.latitude && data.longitude) {
+            const map = L.map('schoolMap', { scrollWheelZoom: false }).setView([data.latitude, data.longitude], 15);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            L.marker([data.lat, data.lng]).addTo(map).bindPopup(data.name).openPopup();
+            L.marker([data.latitude, data.longitude]).addTo(map).bindPopup(data.name).openPopup();
+        } else {
+            document.getElementById('schoolMap').className = "bg-slate-50 h-[400px] flex items-center justify-center text-slate-400 font-bold rounded-[2.5rem]";
+            document.getElementById('schoolMap').innerText = "Map Location Pending Update";
+        }
+    }
+
+    async function fetchReviews() {
+        try {
+            // Assumes you have a table called 'Reviews' with 'schoolId', 'name', 'comment'
+            const whereClause = `schoolId = '${currentSchoolId}'`;
+            const reviews = await Backendless.Data.of("Reviews").find({ where: whereClause });
+            const list = document.getElementById('reviewList');
+            
+            if (reviews.length > 0) {
+                list.innerHTML = reviews.map(r => `
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="font-bold text-sm text-slate-800">${r.name}</p>
+                            <span class="text-[10px] text-slate-400">${new Date(r.created).toLocaleDateString()}</span>
+                        </div>
+                        <p class="text-xs text-slate-500 leading-relaxed">${r.comment}</p>
+                    </div>
+                `).join("");
+            }
+        } catch (e) { console.log("Reviews table not found or empty."); }
+    }
+
+    async function submitReview() {
+        const name = document.getElementById('revName').value.trim();
+        const comment = document.getElementById('revComment').value.trim();
+
+        if (!name || !comment) { alert("Please fill both fields."); return; }
+
+        try {
+            await Backendless.Data.of("Reviews").save({
+                name: name,
+                comment: comment,
+                schoolId: currentSchoolId
+            });
+            document.getElementById('revName').value = "";
+            document.getElementById('revComment').value = "";
+            fetchReviews();
+            alert("Review submitted successfully!");
+        } catch (e) {
+            alert("Could not post review. Ensure the 'Reviews' table exists in Backendless.");
         }
     }
 
@@ -159,3 +236,4 @@
   </script>
  </body>
 </html>
+
