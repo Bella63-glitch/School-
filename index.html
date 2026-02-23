@@ -3,201 +3,263 @@
  <head> 
   <meta charset="UTF-8"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <title>SchoolScout | Find the Best School</title> 
+  <title>SchoolScout | AI-Powered School Finder</title> 
   <script src="https://api.backendless.com/sdk/js/latest/backendless.min.js"></script> 
   <script src="https://cdn.tailwindcss.com"></script> 
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"> 
   <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
-        .glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(14px); }
-        #botToggleBtn { z-index: 9999 !important; }
-        #chatPanel { z-index: 10000 !important; }
-        .school-card { transition: all 0.3s ease; cursor: pointer; }
-        .school-card:hover { transform: translateY(-8px); shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-        details summary::-webkit-details-marker { display: none; }
-    </style> 
+    body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+    .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(14px); }
+    .school-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+    .school-card:hover { transform: translateY(-10px); }
+    #chatPanel { z-index: 10001; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    #chatPanel.active { transform: translateX(0); }
+    /* Adjusted tray to be higher than chat button or vice-versa */
+    .compare-tray { transform: translateY(120%); transition: transform 0.4s ease; z-index: 9998; }
+    .compare-tray.active { transform: translateY(0); }
+    .rotate-180 { transform: rotate(180deg); }
+    .typing-dot { animation: typing 1.4s infinite; }
+    @keyframes typing { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+  </style> 
  </head> 
  <body class="bg-[#fcfdfe] text-slate-900"> 
-  <nav class="glass-nav sticky top-0 z-50 border-b border-slate-100"> 
-   <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center"> 
+  <nav class="glass-nav sticky top-0 z-[1000] border-b border-slate-100 px-6 py-4"> 
+   <div class="max-w-7xl mx-auto flex justify-between items-center"> 
     <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.reload()"> 
      <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-blue-200">
-       S 
-     </div> <span class="text-xl font-extrabold tracking-tight uppercase hidden sm:block">SchoolScout</span> 
-    </div>
-    
-    <div class="flex items-center gap-3 sm:gap-6">
-     <div id="compareBadge" class="hidden bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-xs font-bold border border-blue-100 animate-pulse"> 
-       <span id="selectedCount">0</span> Selected 
-     </div> 
-     <div class="flex items-center gap-2">
-       <a href="register.html" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition px-2">Login</a>
-       <a href="register.html" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:bg-blue-600 transition">Register</a>
-     </div>
-    </div>
+      S
+     </div> <span class="text-xl font-extrabold tracking-tight uppercase">SchoolScout</span> 
+    </div> 
+    <div class="hidden md:flex gap-6 items-center"> <a href="#explore" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition">Explore</a> <a href="#faqs" class="text-sm font-bold text-slate-600 hover:text-blue-600 transition">FAQs</a> 
+     <div class="h-6 w-[1px] bg-slate-200 mx-2"></div> <a href="register.html" class="text-sm font-bold text-slate-900 hover:text-blue-600 transition">Log In</a> <button onclick="toggleChat()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-blue-700 shadow-md transition">Talk to AI Scout</button> 
+    </div> 
    </div> 
   </nav> 
-
-  <header class="max-w-7xl mx-auto px-6 py-12 lg:py-20 grid lg:grid-cols-2 gap-12 items-center"> 
-   <div> 
-    <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
-      ✨ 2026 Admissions Open 
-    </div> 
-    <h1 class="text-5xl lg:text-7xl font-extrabold leading-[1.1] mb-6 tracking-tight text-slate-900">Find the right <br><span class="text-blue-600">School</span> for them.</h1> 
-    <p class="text-slate-500 text-lg mb-10 max-w-lg leading-relaxed">Browse verified schools in Kenya. Compare fees, see campus photos, and filter by location instantly.</p> 
-    <div class="flex flex-wrap gap-4"> <a href="#explore" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-blue-200 hover:scale-105 transition transform text-center">View All Schools</a> <button onclick="toggleChat()" class="bg-white border border-slate-200 px-10 py-4 rounded-2xl font-bold hover:bg-slate-50 transition">Talk to Scout</button> 
-    </div> 
+  <header class="max-w-7xl mx-auto px-6 py-16"> 
+   <div class="text-center mb-12"> 
+    <h1 class="text-6xl lg:text-7xl font-extrabold leading-tight mb-6 tracking-tighter text-slate-900"> Find the right <span class="text-blue-600">Future.</span> </h1> 
+    <p class="text-slate-500 text-lg max-w-2xl mx-auto">Verified Kenyan institutions for 2026. Filter by performance, faith, and mode of study.</p> 
    </div> 
-   <div class="hidden lg:block"> 
-    <div class="h-[500px] rounded-[3rem] overflow-hidden border-[8px] border-white shadow-2xl"> 
-     <img id="heroBanner" src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&amp;fit=crop&amp;w=1000" class="w-full h-full object-cover"> 
+   <div class="bg-white p-4 rounded-[2.5rem] shadow-2xl border border-slate-100"> 
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"> 
+     <div class="relative"> 
+      <input id="searchInput" type="text" oninput="applyFilters()" placeholder="Town or school name..." class="w-full bg-slate-50 rounded-2xl p-4 pl-12 text-sm font-semibold border-none focus:ring-2 ring-blue-100 outline-none"> <span class="absolute left-4 top-4 opacity-30">🔍</span> 
+     </div> <select id="levelFilter" onchange="applyFilters()" class="bg-slate-50 rounded-2xl p-4 text-sm font-bold border-none outline-none"> <option value="">All Levels</option> <option value="Pre-School">Pre-School</option> <option value="Primary">Primary</option> <option value="High School">High School</option> <option value="University">University</option> </select> <select id="categoryFilter" onchange="applyFilters()" class="bg-slate-50 rounded-2xl p-4 text-sm font-bold border-none outline-none"> <option value="">Public &amp; Private</option> <option value="Private">Private</option> <option value="Public">Public</option> </select> <button onclick="toggleAdvanced()" class="flex items-center justify-center gap-2 bg-slate-900 text-white rounded-2xl p-4 text-sm font-bold hover:bg-blue-600 transition"> <span>Advanced Filters</span> 
+      <svg id="filterChevron" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+      </svg> </button> 
+    </div> 
+    <div id="advancedSection" class="hidden grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-100"> 
+     <div> <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Boarding Mode</label> <select id="typeFilter" onchange="applyFilters()" class="w-full bg-slate-50 rounded-xl p-3 text-sm font-bold mt-1 border-none outline-none"> <option value="">Any Mode</option> <option value="Day">Day</option> <option value="Boarding">Boarding</option> <option value="Special Needs">Special Needs</option> </select> 
+     </div> 
+     <div> <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Religion</label> <select id="religionFilter" onchange="applyFilters()" class="w-full bg-slate-50 rounded-xl p-3 text-sm font-bold mt-1 border-none outline-none"> <option value="">Any Affiliation</option> <option value="Christian">Christian</option> <option value="Muslim">Muslim</option> <option value="Secular">Secular</option> </select> 
+     </div> 
+     <div> <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Curriculum</label> <select id="curFilter" onchange="applyFilters()" class="w-full bg-slate-50 rounded-xl p-3 text-sm font-bold mt-1 border-none outline-none"> <option value="">Any</option> <option value="CBC">CBC</option> <option value="IGCSE">IGCSE</option> <option value="8-4-4">8-4-4</option> </select> 
+     </div> 
+     <div> <label class="text-[10px] font-black text-slate-400 uppercase ml-2">Min. Performance</label> <select id="perfFilter" onchange="applyFilters()" class="w-full bg-slate-50 rounded-xl p-3 text-sm font-bold mt-1 border-none outline-none"> <option value="0">Any Score</option> <option value="10">Grade B+ &amp; Above</option> <option value="7">Grade C+ &amp; Above</option> </select> 
+     </div> 
+     <div class="lg:col-span-4 flex justify-between items-center"> 
+      <p id="resultsCount" class="text-xs font-bold text-blue-600 uppercase tracking-widest">Updating results...</p> <button onclick="clearAllFilters()" class="text-xs font-bold text-red-500 hover:underline">Clear Filters</button> 
+     </div> 
     </div> 
    </div> 
   </header> 
-
-  <main id="explore" class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-100"> 
-   <h2 class="text-3xl font-extrabold tracking-tight mb-10" id="gridTitle">Explore Verified Schools</h2> 
-   <div id="schoolGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div> 
+  <main id="explore" class="max-w-7xl mx-auto px-6 pb-20"> 
+   <div id="schoolGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div> 
   </main> 
-
-  <section class="max-w-4xl mx-auto px-6 py-20"> 
-   <h2 class="text-3xl font-extrabold text-center mb-12">Frequently Asked Questions</h2> 
-   <div class="space-y-4"> 
-    <details class="group bg-white border border-slate-100 rounded-3xl p-6 shadow-sm"> <summary class="flex justify-between items-center font-bold cursor-pointer list-none"> How do I know the school fees are accurate? <span class="text-blue-600 transition group-open:rotate-180">▼</span> </summary> 
-     <p class="mt-4 text-slate-500 text-sm leading-relaxed">Our team manually verifies fee structures for the 2026 academic year directly with school administrations before marking a school as "Verified."</p> 
-    </details> 
-    <details class="group bg-white border border-slate-100 rounded-3xl p-6 shadow-sm"> <summary class="flex justify-between items-center font-bold cursor-pointer list-none"> Can I book a school tour through SchoolScout? <span class="text-blue-600 transition group-open:rotate-180">▼</span> </summary> 
-     <p class="mt-4 text-slate-500 text-sm leading-relaxed">Yes! You can use the "Call Now" button in the school details page to speak directly with the admissions office and schedule a visit.</p> 
-    </details> 
-    <details class="group bg-white border border-slate-100 rounded-3xl p-6 shadow-sm"> <summary class="flex justify-between items-center font-bold cursor-pointer list-none"> What does the "Verified" badge mean? <span class="text-blue-600 transition group-open:rotate-180">▼</span> </summary> 
-     <p class="mt-4 text-slate-500 text-sm leading-relaxed">The badge confirms that the school exists, the photos are recent, and the curriculum details have been cross-checked by our admin team.</p> 
-    </details> 
-   </div> 
-  </section> 
-
-  <div id="detailView" class="fixed inset-0 z-[2000] bg-white hidden overflow-y-auto"> 
-   <div class="max-w-6xl mx-auto px-6 py-12"> <button onclick="closeDetails()" class="mb-8 flex items-center gap-2 text-slate-500 font-bold hover:text-blue-600 transition"> <span class="text-2xl">←</span> Back to Search </button> 
-    <div id="detailContent" class="grid lg:grid-cols-3 gap-12"></div> 
+  <div id="compareModal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-[10002] hidden flex items-center justify-center p-6"> 
+   <div class="bg-white w-full max-w-5xl rounded-[3rem] p-10 relative max-h-[90vh] overflow-y-auto shadow-2xl"> <button onclick="closeCompare()" class="absolute top-8 right-8 text-2xl font-bold hover:text-red-500">✕</button> 
+    <h3 class="text-3xl font-black mb-10">Comparison Analysis</h3> 
+    <div id="compareResult" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div> 
    </div> 
   </div> 
-
-  <button id="botToggleBtn" onclick="toggleChat()" class="fixed bottom-8 right-8 w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition active:scale-95 text-2xl border-2 border-white">💬</button> 
-  
-  <div id="chatPanel" class="fixed bottom-0 right-0 w-full sm:w-[400px] sm:bottom-24 sm:right-8 bg-white sm:rounded-[2rem] shadow-2xl flex flex-col h-[550px] translate-y-[120%] transition-transform duration-500 border border-slate-100 overflow-hidden"> 
-   <div class="p-5 bg-slate-900 text-white flex justify-between items-center"> <span class="font-bold text-sm tracking-wide uppercase">AI School Scout</span> <button onclick="toggleChat()">✕</button> 
+  <div id="compareTray" class="compare-tray fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-6 shadow-[0_-20px_50px_rgba(0,0,0,0.1)]"> 
+   <div class="max-w-7xl mx-auto flex justify-between items-center"> 
+    <p class="font-bold text-lg"><span id="compCount" class="text-blue-600">0</span> selected for comparison</p> 
+    <div class="flex gap-4"> <button onclick="clearCompare()" class="text-sm font-bold text-slate-400">Clear All</button> <button onclick="analyzeSideBySide()" class="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold shadow-xl hover:bg-blue-700 transition">Compare Details</button> 
+    </div> 
    </div> 
-   <div id="chatMessages" class="flex-1 p-5 overflow-y-auto bg-slate-50 space-y-4"></div> 
-   <div class="p-4 bg-white border-t flex gap-2"> 
-    <input id="chatInput" type="text" onkeypress="if(event.key==='Enter') sendChat()" placeholder="Type a location..." class="flex-1 bg-slate-100 px-4 py-3 rounded-xl outline-none text-sm focus:ring-1 focus:ring-blue-500"> <button onclick="sendChat()" class="bg-blue-600 text-white px-5 rounded-xl font-bold text-sm">Find</button> 
+  </div> <button onclick="toggleChat()" class="fixed bottom-8 right-8 w-16 h-16 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center text-3xl hover:scale-110 transition active:scale-95 z-[9999]">💬</button> 
+  <div id="chatPanel" class="fixed top-0 right-0 h-full w-full sm:w-[450px] bg-white shadow-2xl flex flex-col"> 
+   <div class="p-8 bg-blue-600 text-white flex justify-between items-center shadow-lg"> 
+    <div>
+     <h4 class="font-bold text-xl">AI Scout</h4>
+     <p class="text-xs text-blue-100">Syncing with your search filters</p>
+    </div> <button onclick="toggleChat()" class="text-2xl">✕</button> 
+   </div> 
+   <div id="chatMessages" class="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-50"> 
+    <div class="bg-white p-4 rounded-2xl text-sm shadow-sm border border-slate-100 max-w-[85%]">
+      Hello! I can help you filter faster. You can say things like "Show me private schools in Nairobi" or "Find high performing boarding schools." 
+    </div> 
+   </div> 
+   <div id="typingIndicator" class="hidden px-6 py-2 text-xs text-slate-400 font-medium">
+    AI Scout is filtering<span class="typing-dot">.</span><span class="typing-dot" style="animation-delay: 0.2s">.</span><span class="typing-dot" style="animation-delay: 0.4s">.</span>
+   </div> 
+   <div class="p-4 border-t flex gap-2 bg-white"> 
+    <input id="chatInput" type="text" onkeypress="if(event.key==='Enter') sendChat()" class="flex-1 bg-slate-100 rounded-2xl px-5 py-4 outline-none focus:ring-2 ring-blue-500/20" placeholder="Ask me to find something..."> <button onclick="sendChat()" class="bg-blue-600 text-white w-14 rounded-2xl font-bold flex items-center justify-center">Go</button> 
    </div> 
   </div> 
-
   <script>
-        const APP_ID = "7C583CBA-2EDA-488B-8593-0ED33DD5C3D3";
-        const API_KEY = "2E3D73DF-6DE9-4F76-9DB1-D240978DEE1D";
-        Backendless.initApp(APP_ID, API_KEY);
+    const APP_ID = "7C583CBA-2EDA-488B-8593-0ED33DD5C3D3";
+    const API_KEY = "2E3D73DF-6DE9-4F76-9DB1-D240978DEE1D";
+    Backendless.initApp(APP_ID, API_KEY);
 
-        let allSchools = [];
+    let allSchools = [];
+    let compareList = [];
 
-        async function loadSchools() {
-            try {
-                const query = Backendless.DataQueryBuilder.create()
-                    .setWhereClause("isverified = true")
-                    .setPageSize(100);
-                
-                allSchools = await Backendless.Data.of("Schools").find(query);
-                renderSchools(allSchools);
-            } catch (e) { console.error(e); }
+    async function loadSchools() {
+        allSchools = await Backendless.Data.of("Schools").find({ where: "isverified = true", pageSize: 100 });
+        applyFilters(); 
+    }
+
+    function renderSchools(data) {
+        const grid = document.getElementById("schoolGrid");
+        if(!data || data.length === 0) {
+            grid.innerHTML = `<div class="col-span-full text-center py-20 text-slate-400">No schools match these criteria. Try widening your search!</div>`;
+            return;
         }
-
-        function renderSchools(data) {
-            const grid = document.getElementById("schoolGrid");
-            grid.innerHTML = data.map(s => {
-                const img = (s.gallery && s.gallery.length > 0) ? s.gallery[0] : s.heroImage;
-                return `
-                <div class="school-card bg-white rounded-[2.5rem] p-4 border border-slate-100 flex flex-col h-full shadow-sm hover:shadow-lg" onclick="showDetails('${s.objectId}')">
-                    <div class="h-60 bg-slate-50 rounded-[2rem] overflow-hidden mb-5">
-                        <img src="${getImageUrl(img)}" class="w-full h-full object-cover">
+        grid.innerHTML = data.map(s => `
+            <div class="school-card bg-white rounded-[2.5rem] p-5 flex flex-col border border-slate-50 shadow-sm hover:shadow-xl">
+                <div class="h-52 bg-slate-100 rounded-[2rem] overflow-hidden mb-6 relative">
+                    <img src="${getImg(s)}" class="w-full h-full object-cover">
+                    <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-blue-600 shadow-sm">${s.category || 'School'}</div>
+                </div>
+                <div class="flex-1 px-2">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-extrabold text-xl leading-tight">${s.name}</h3>
+                        <span class="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded-lg">${s.performanceScore || 'N/A'} Score</span>
                     </div>
-                    <div class="px-2 flex-1 flex flex-col">
-                        <h3 class="text-xl font-bold mb-1 tracking-tight text-slate-800">${s.name}</h3>
-                        <p class="text-slate-400 text-xs mb-5 italic">📍 ${s.location || 'Kenya'}</p>
-                        <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50">
-                            <span class="text-lg font-black text-blue-600">KES ${Number(s.annualfee || 0).toLocaleString()}</span>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">View Details →</p>
-                        </div>
+                    <p class="text-slate-400 text-[11px] mb-4 uppercase tracking-wide">📍 ${s.location}</p>
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <span class="text-[10px] bg-slate-100 px-2 py-1 rounded-md font-bold text-slate-500">${s.type}</span>
+                        <span class="text-[10px] bg-slate-100 px-2 py-1 rounded-md font-bold text-slate-500">${s.curriculum}</span>
                     </div>
-                </div>`;
-            }).join("");
-        }
-
-        function getImageUrl(fileName, thumb = true) {
-            if (!fileName) return 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=800';
-            return `https://backendlessappcontent.com/${APP_ID}/${API_KEY}/files/school_images/${fileName}${thumb ? "?default-thumbnail=true&width=600" : ""}`;
-        }
-
-        function showDetails(id) {
-            const s = allSchools.find(sc => sc.objectId === id);
-            const content = document.getElementById("detailContent");
-            const galleryHtml = (s.gallery || []).map(img => `<img src="${getImageUrl(img, false)}" class="w-full rounded-2xl shadow-sm object-cover">`).join('');
-            const amenities = (s.amenities || []).map(a => `<span class="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-bold">${a}</span>`).join('');
-
-            content.innerHTML = `
-                <div class="lg:col-span-2 space-y-10">
-                    <div>
-                        <h2 class="text-5xl font-black text-slate-900">${s.name}</h2>
-                        <p class="text-xl text-slate-400 font-medium italic mt-2">📍 ${s.location} — ${s.exactaddress || ''}</p>
-                    </div>
-                    <div class="space-y-6">
-                        <h4 class="text-xs font-black uppercase text-slate-300 tracking-widest">Campus Gallery</h4>
-                        <div class="gallery-grid">${galleryHtml}</div>
-                    </div>
-                    <div class="space-y-6">
-                        <h4 class="text-xs font-black uppercase text-slate-300 tracking-widest">About the School</h4>
-                        <p class="text-slate-600 leading-relaxed text-lg">${s.description || 'Verified educational institution.'}</p>
+                    <div class="flex justify-between items-center pt-5 border-t border-slate-50">
+                        <span class="font-black text-slate-900">KES ${(s.annualfee || 0).toLocaleString()}</span>
+                        <button onclick="toggleCompare('${s.objectId}')" class="text-[10px] font-black uppercase ${compareList.includes(s.objectId) ? 'text-blue-600' : 'text-slate-300'} transition hover:text-blue-600">
+                            ${compareList.includes(s.objectId) ? '✓ Selected' : '+ Compare'}
+                        </button>
                     </div>
                 </div>
-                <div class="space-y-6">
-                    <div class="sticky top-28 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-100/50">
-                        <div class="mb-8 font-black">
-                            <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-2">Annual Fees (2026)</p>
-                            <p class="text-4xl text-blue-600">KES ${Number(s.annualfee || 0).toLocaleString()}</p>
-                        </div>
-                        <div class="mb-8">
-                            <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Features</p>
-                            <div class="flex flex-wrap gap-2">${amenities}</div>
-                        </div>
-                        <a href="tel:${s.phone}" class="flex items-center justify-center gap-3 w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-blue-600 transition">📞 Call Admissions</a>
-                    </div>
-                </div>`;
-            document.getElementById("detailView").classList.remove("hidden");
-            window.scrollTo(0, 0);
-        }
+            </div>`).join("");
+    }
 
-        function closeDetails() { document.getElementById("detailView").classList.add("hidden"); }
-        function toggleChat() { 
-            const p = document.getElementById("chatPanel");
-            p.classList.toggle("translate-y-[120%]");
-            p.classList.toggle("translate-y-0");
-        }
+    function getImg(s) {
+        if (!s.gallery) return 'https://images.unsplash.com/photo-1523050853061-80e8a4ff147e?w=800';
+        try {
+            const arr = typeof s.gallery === 'string' ? JSON.parse(s.gallery) : s.gallery;
+            return `https://backendlessappcontent.com/${APP_ID}/${API_KEY}/files/school_images/${Array.isArray(arr) ? arr[0] : arr}`;
+        } catch(e) { return 'https://images.unsplash.com/photo-1523050853061-80e8a4ff147e?w=800'; }
+    }
 
-        async function sendChat() {
-            const input = document.getElementById("chatInput");
-            const val = input.value.trim().toLowerCase();
-            if(!val) return;
-            input.value = "";
-            const query = Backendless.DataQueryBuilder.create()
-                .setWhereClause(`isverified = true AND (location LIKE '%${val}%' OR name LIKE '%${val}%')`);
-            const res = await Backendless.Data.of("Schools").find(query);
-            renderSchools(res);
-            document.getElementById("gridTitle").innerText = `Results for "${val}"`;
-        }
+    function toggleAdvanced() {
+        document.getElementById("advancedSection").classList.toggle("hidden");
+        document.getElementById("filterChevron").classList.toggle("rotate-180");
+    }
 
-        loadSchools();
-    </script> 
+    function clearAllFilters() {
+        const ids = ["searchInput", "levelFilter", "categoryFilter", "typeFilter", "religionFilter", "curFilter", "perfFilter"];
+        ids.forEach(id => document.getElementById(id).value = (id === "perfFilter" ? "0" : ""));
+        applyFilters();
+    }
+
+    async function applyFilters() {
+        const filters = {
+            level: document.getElementById("levelFilter").value,
+            category: document.getElementById("categoryFilter").value,
+            type: document.getElementById("typeFilter").value,
+            religion: document.getElementById("religionFilter").value,
+            curriculum: document.getElementById("curFilter").value,
+            minPerf: parseInt(document.getElementById("perfFilter").value || 0),
+            query: document.getElementById("searchInput").value.toLowerCase()
+        };
+
+        let where = "isverified = true";
+        if (filters.level) where += ` AND level = '${filters.level}'`;
+        if (filters.category) where += ` AND category = '${filters.category}'`;
+        if (filters.religion) where += ` AND religion = '${filters.religion}'`;
+        if (filters.curriculum) where += ` AND curriculum = '${filters.curriculum}'`;
+        if (filters.minPerf > 0) where += ` AND performanceScore >= ${filters.minPerf}`;
+        if (filters.type) where += ` AND type LIKE '%${filters.type}%'`;
+        if (filters.query) where += ` AND (name LIKE '%${filters.query}%' OR location LIKE '%${filters.query}%')`;
+
+        const res = await Backendless.Data.of("Schools").find({ where: where, pageSize: 100 });
+        document.getElementById("resultsCount").innerText = `${res.length} Schools Found`;
+        renderSchools(res);
+    }
+
+    function toggleCompare(id) {
+        const index = compareList.indexOf(id);
+        if (index > -1) {
+            compareList.splice(index, 1);
+        } else if (compareList.length < 3) {
+            compareList.push(id);
+        } else {
+            alert("Compare up to 3 schools.");
+            return;
+        }
+        
+        document.getElementById("compCount").innerText = compareList.length;
+        document.getElementById("compareTray").classList.toggle("active", compareList.length > 0);
+        applyFilters(); // Re-render to show selection state
+    }
+
+    async function analyzeSideBySide() {
+        const selected = allSchools.filter(s => compareList.includes(s.objectId));
+        document.getElementById("compareResult").innerHTML = selected.map(s => `
+            <div class="space-y-6 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 text-center">
+                <img src="${getImg(s)}" class="w-24 h-24 object-cover rounded-full mx-auto shadow-md">
+                <h4 class="font-extrabold text-xl">${s.name}</h4>
+                <div class="text-xs space-y-4 pt-4 border-t border-slate-200">
+                    <p class="flex justify-between"><span>Annual Fee</span> <b class="text-blue-600">KES ${s.annualfee.toLocaleString()}</b></p>
+                    <p class="flex justify-between"><span>Type</span> <b>${s.category}</b></p>
+                    <p class="flex justify-between"><span>Curriculum</span> <b>${s.curriculum}</b></p>
+                    <p class="flex justify-between"><span>Score</span> <b>${s.performanceScore || 'N/A'}/12</b></p>
+                </div>
+                <button class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold mt-4 hover:bg-blue-600 transition">Contact Admissions</button>
+            </div>`).join("");
+        document.getElementById("compareModal").classList.remove("hidden");
+    }
+
+    function closeCompare() { document.getElementById("compareModal").classList.add("hidden"); }
+    function clearCompare() { compareList = []; document.getElementById("compareTray").classList.remove("active"); applyFilters(); }
+    function toggleChat() { document.getElementById("chatPanel").classList.toggle("active"); }
+
+    async function sendChat() {
+        const input = document.getElementById("chatInput");
+        const msg = input.value.trim();
+        if(!msg) return;
+
+        const chatBox = document.getElementById("chatMessages");
+        const indicator = document.getElementById("typingIndicator");
+
+        chatBox.innerHTML += `<div class="bg-blue-600 text-white p-4 rounded-2xl text-sm self-end ml-auto max-w-[85%] shadow-md">${msg}</div>`;
+        const query = msg.toLowerCase();
+        input.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+        indicator.classList.remove("hidden");
+
+        let replyText = "I've scanned our database and updated the list for you.";
+        
+        if (query.includes("private")) document.getElementById("categoryFilter").value = "Private";
+        if (query.includes("public")) document.getElementById("categoryFilter").value = "Public";
+        if (query.includes("boarding")) document.getElementById("typeFilter").value = "Boarding";
+        if (query.includes("day")) document.getElementById("typeFilter").value = "Day";
+        if (query.includes("top") || query.includes("best")) document.getElementById("perfFilter").value = "10";
+        
+        const cities = ["nairobi", "mombasa", "kisumu", "nakuru", "eldoret"];
+        cities.forEach(c => { if(query.includes(c)) document.getElementById("searchInput").value = c; });
+
+        await applyFilters();
+
+        setTimeout(() => {
+            indicator.classList.add("hidden");
+            chatBox.innerHTML += `<div class="bg-white p-4 rounded-2xl text-sm shadow-sm border border-slate-100 max-w-[85%]">${replyText}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }, 800);
+    }
+
+    loadSchools();
+  </script> 
  </body>
-</html>
-
-
-     
+     </html>
